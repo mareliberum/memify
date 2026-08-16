@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
-import com.codekotliners.memify.R
+import com.codekotliners.memify.core.ui.R
 
 val AppTypography = Typography()
 

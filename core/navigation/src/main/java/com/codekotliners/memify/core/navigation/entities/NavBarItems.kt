@@ -1,6 +1,6 @@
 package com.codekotliners.memify.core.navigation.entities
 
-import com.codekotliners.memify.R
+import com.codekotliners.memify.core.navigation.R
 
 object NavBarItems {
     val BarItems =

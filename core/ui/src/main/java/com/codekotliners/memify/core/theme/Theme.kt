@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import com.codekotliners.memify.R
+import com.codekotliners.memify.core.ui.R
 
 private val lightScheme =
     lightColorScheme(

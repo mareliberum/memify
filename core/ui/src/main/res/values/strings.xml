@@ -1,0 +1,5 @@
+<resources>
+    <string name="light">Светлая</string>
+    <string name="dark">Темная</string>
+    <string name="system">Системная</string>
+</resources>
