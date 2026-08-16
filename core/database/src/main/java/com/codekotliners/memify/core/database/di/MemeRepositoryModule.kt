@@ -1,4 +1,4 @@
-package com.codekotliners.memify.core.di
+package com.codekotliners.memify.core.database.di
 
 import com.codekotliners.memify.core.database.dao.MemeDao
 import com.codekotliners.memify.core.repositories.MemeRepository

@@ -1,4 +1,4 @@
-package com.codekotliners.memify.core.di
+package com.codekotliners.memify.core.database.di
 
 import com.codekotliners.memify.core.database.dao.UriDao
 import com.codekotliners.memify.core.repositories.UriRepository

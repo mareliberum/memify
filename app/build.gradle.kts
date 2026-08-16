@@ -63,6 +63,9 @@ dependencies {
     // Core modules
     implementation(project(":core:model"))
     implementation(project(":core:common"))
+    implementation(project(":core:database"))
+    implementation(project(":core:network"))
+    implementation(project(":core:prefs"))
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)

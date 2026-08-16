@@ -1,4 +1,4 @@
-package com.codekotliners.memify.core.di
+package com.codekotliners.memify.core.network.di
 
 import com.codekotliners.memify.core.network.postsdatasource.PostsDatasource
 import com.codekotliners.memify.core.network.postsdatasource.PostsFbStorageDatasource

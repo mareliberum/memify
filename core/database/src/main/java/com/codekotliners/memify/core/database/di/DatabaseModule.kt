@@ -1,4 +1,4 @@
-package com.codekotliners.memify.core.di
+package com.codekotliners.memify.core.database.di
 
 import android.content.Context
 import androidx.room.Room

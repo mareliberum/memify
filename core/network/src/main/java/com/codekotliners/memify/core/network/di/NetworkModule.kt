@@ -1,4 +1,4 @@
-package com.codekotliners.memify.core.di
+package com.codekotliners.memify.core.network.di
 
 import android.content.Context
 import com.codekotliners.memify.core.network.utils.InternetChecker
