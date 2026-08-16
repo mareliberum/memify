@@ -1,7 +1,7 @@
 package com.codekotliners.memify.features.settings.presentation.usecase
 
 import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.codekotliners.memify.features.settings.presentation.domain.PasswordValidator
 import com.codekotliners.memify.features.settings.presentation.domain.UpdatePasswordResult
 import javax.inject.Inject

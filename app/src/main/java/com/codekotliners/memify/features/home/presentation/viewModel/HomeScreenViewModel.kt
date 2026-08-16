@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codekotliners.memify.core.mappers.toPostDto
 import com.codekotliners.memify.core.models.Post
-import com.codekotliners.memify.features.home.domain.repository.LikesRepository
+import com.codekotliners.memify.core.repositories.likes.LikesRepository
 import com.codekotliners.memify.features.home.domain.repository.PostsRepository
 import com.codekotliners.memify.features.home.presentation.state.ErrorType
 import com.codekotliners.memify.features.home.presentation.state.MainFeedScreenState

@@ -45,7 +45,7 @@ import com.codekotliners.memify.features.home.presentation.ui.components.PostCar
 import com.codekotliners.memify.features.home.presentation.ui.components.PostCardImage
 import com.codekotliners.memify.features.home.presentation.viewModel.HomeScreenViewModel
 import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileViewModel
-import com.codekotliners.memify.features.viewer.domain.model.ImageType
+import com.codekotliners.memify.core.navigation.entities.ImageType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

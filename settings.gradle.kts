@@ -11,6 +11,7 @@ pluginManagement {
         }
         maven(url = "https://artifactory-external.vkpartner.ru/artifactory/vkid-sdk-android/")
         maven(url = "https://artifactory-external.vkpartner.ru/artifactory/maven/")
+        maven(url = "https://artifactory-external.vkpartner.ru/artifactory/vk-id-captcha/android/")
         mavenCentral()
         gradlePluginPortal()
     }
@@ -26,8 +27,13 @@ dependencyResolutionManagement {
         maven {
             url = URI("https://artifactory-external.vkpartner.ru/artifactory/maven/")
         }
+        maven {
+            url = URI("https://artifactory-external.vkpartner.ru/artifactory/vk-id-captcha/android/")
+        }
     }
 }
 
 rootProject.name = "Memify"
 include(":app")
+include(":core:model")
+include(":core:common")

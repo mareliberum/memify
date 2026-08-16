@@ -10,7 +10,7 @@ import com.codekotliners.memify.core.database.dao.DraftsDao
 import com.codekotliners.memify.core.database.entities.DraftEntity
 import com.codekotliners.memify.core.exceptions.ImageSavingException
 import com.codekotliners.memify.core.models.Draft
-import com.codekotliners.memify.features.home.mocks.MockMeme
+import com.codekotliners.memify.core.models.DraftSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -31,7 +31,7 @@ class DraftsRepositoryImpl @Inject constructor(
             }
         }
 
-    override suspend fun saveDraft(draft: MockMeme) {
+    override suspend fun saveDraft(draft: DraftSource) {
         try {
             val imageLocalPath = saveImageLocally(draft.url)
             draftsDao.insertDraft(DraftEntity(templateId = draft.id, imageLocalPath = imageLocalPath))

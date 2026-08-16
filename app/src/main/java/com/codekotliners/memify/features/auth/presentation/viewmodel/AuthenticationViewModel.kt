@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

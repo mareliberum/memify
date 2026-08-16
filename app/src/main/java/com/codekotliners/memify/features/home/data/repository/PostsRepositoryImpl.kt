@@ -6,7 +6,7 @@ import com.codekotliners.memify.core.models.User
 import com.codekotliners.memify.core.network.models.PostDto
 import com.codekotliners.memify.core.network.postsdatasource.PostsDatasource
 import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.codekotliners.memify.features.home.domain.repository.PostsRepository
 import com.codekotliners.memify.features.home.mocks.mockUser
 import com.google.firebase.auth.FirebaseAuth

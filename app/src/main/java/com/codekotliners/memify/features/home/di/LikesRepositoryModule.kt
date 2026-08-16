@@ -1,7 +1,7 @@
 package com.codekotliners.memify.features.home.di
 
 import com.codekotliners.memify.features.home.data.repository.LikesRepositoryImpl
-import com.codekotliners.memify.features.home.domain.repository.LikesRepository
+import com.codekotliners.memify.core.repositories.likes.LikesRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

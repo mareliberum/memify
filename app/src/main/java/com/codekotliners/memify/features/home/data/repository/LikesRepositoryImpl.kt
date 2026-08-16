@@ -3,7 +3,7 @@ package com.codekotliners.memify.features.home.data.repository
 import android.util.Log
 import com.codekotliners.memify.core.data.constants.POSTS_COLLECTION_NAME
 import com.codekotliners.memify.core.network.models.PostDto
-import com.codekotliners.memify.features.home.domain.repository.LikesRepository
+import com.codekotliners.memify.core.repositories.likes.LikesRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore

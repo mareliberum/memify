@@ -3,7 +3,7 @@ package com.codekotliners.memify.core.usecases
 import android.net.Uri
 import android.util.Log
 import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.google.firebase.Firebase
 import com.google.firebase.storage.storage
 import kotlinx.coroutines.tasks.await

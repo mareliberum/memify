@@ -2,7 +2,7 @@ package com.codekotliners.memify.features.auth.domain.repository
 
 import android.content.Intent
 import androidx.activity.result.ActivityResult
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow

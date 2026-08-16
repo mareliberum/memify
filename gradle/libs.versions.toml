@@ -60,8 +60,10 @@ coil-base = { group = "io.coil-kt", name = "coil-base", version.ref = "coilBase"
 androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx"}
 coil-compose-base = { group = "io.coil-kt", name = "coil-compose-base", version.ref = "coilComposeBase" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 

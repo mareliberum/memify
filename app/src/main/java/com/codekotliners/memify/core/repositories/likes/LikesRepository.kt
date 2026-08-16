@@ -1,4 +1,4 @@
-package com.codekotliners.memify.features.home.domain.repository
+package com.codekotliners.memify.core.repositories.likes
 
 import com.codekotliners.memify.core.network.models.PostDto
 

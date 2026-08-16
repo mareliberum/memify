@@ -5,7 +5,7 @@ import android.util.Log
 import com.codekotliners.memify.core.network.models.PostDto
 import com.codekotliners.memify.core.network.postsdatasource.PostsDatasource
 import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

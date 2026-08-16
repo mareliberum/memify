@@ -1,6 +1,5 @@
 package com.codekotliners.memify.core.navigation.entities
 
-import com.codekotliners.memify.features.viewer.domain.model.ImageType
 import java.util.Base64
 
 sealed class NavRoutes(

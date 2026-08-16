@@ -33,7 +33,7 @@ import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileV
 import com.codekotliners.memify.features.settings.presentation.ui.SettingsLoggedScreen
 import com.codekotliners.memify.features.settings.presentation.ui.SettingsUnLoggedScreen
 import com.codekotliners.memify.features.settings.presentation.viewmodel.SettingsScreenViewModel
-import com.codekotliners.memify.features.viewer.domain.model.ImageType
+import com.codekotliners.memify.core.navigation.entities.ImageType
 import com.codekotliners.memify.features.viewer.presentation.ui.ImageViewerScreen
 import java.util.Base64
 

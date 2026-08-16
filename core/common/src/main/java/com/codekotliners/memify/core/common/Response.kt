@@ -1,4 +1,4 @@
-package com.codekotliners.memify.features.auth.domain.entities
+package com.codekotliners.memify.core.common
 
 sealed class Response<out T> {
     data object Loading : Response<Nothing>()

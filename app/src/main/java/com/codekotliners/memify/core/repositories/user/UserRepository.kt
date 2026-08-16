@@ -1,7 +1,7 @@
 package com.codekotliners.memify.core.repositories.user
 
 import com.codekotliners.memify.core.models.UserData
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 
 interface UserRepository {
     suspend fun createUser(userData: UserData): Response<Boolean>

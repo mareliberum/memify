@@ -2,7 +2,7 @@ package com.codekotliners.memify.core.usecases
 
 import android.util.Log
 import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import javax.inject.Inject
 
 class GetUserDataUseCase@Inject constructor(

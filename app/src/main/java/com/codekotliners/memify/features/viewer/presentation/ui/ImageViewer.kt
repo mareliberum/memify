@@ -36,7 +36,7 @@ import com.codekotliners.memify.LocalSharedTransitionScope
 import com.codekotliners.memify.R
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.ui.components.CenteredCircularProgressIndicator
-import com.codekotliners.memify.features.viewer.domain.model.ImageType
+import com.codekotliners.memify.core.navigation.entities.ImageType
 import com.codekotliners.memify.features.viewer.presentation.state.ImageState
 import com.codekotliners.memify.features.viewer.presentation.ui.components.ImageViewerTopBar
 import com.codekotliners.memify.features.viewer.presentation.ui.components.TranslatableImage

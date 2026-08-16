@@ -6,7 +6,7 @@ import androidx.activity.result.ActivityResult
 import com.codekotliners.memify.R
 import com.codekotliners.memify.core.models.UserData
 import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

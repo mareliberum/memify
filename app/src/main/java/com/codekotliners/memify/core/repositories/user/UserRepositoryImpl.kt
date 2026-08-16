@@ -2,7 +2,7 @@ package com.codekotliners.memify.core.repositories.user
 
 import android.util.Log
 import com.codekotliners.memify.core.models.UserData
-import com.codekotliners.memify.features.auth.domain.entities.Response
+import com.codekotliners.memify.core.common.Response
 import com.google.firebase.Firebase
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth

@@ -12,7 +12,7 @@ import com.codekotliners.memify.core.repositories.UriRepository
 import com.codekotliners.memify.core.repositories.user.UserRepository
 import com.codekotliners.memify.core.usecases.GetUserDataUseCase
 import com.codekotliners.memify.core.usecases.UpdateProfileImageUseCase
-import com.codekotliners.memify.features.home.domain.repository.LikesRepository
+import com.codekotliners.memify.core.repositories.likes.LikesRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.vk.id.VKID
 import com.vk.id.VKIDUser
