@@ -1,0 +1,7 @@
+<resources>
+    <string name="profile">Профиль</string>
+    <string name="up">Вверх</string>
+    <string name="log_in_account">Войти в аккаунт</string>
+    <string name="liked">Понравившиеся</string>
+    <string name="created">Созданные</string>
+</resources>

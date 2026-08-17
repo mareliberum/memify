@@ -70,7 +70,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.profile.R
 import com.codekotliners.memify.core.database.entities.UriEntity
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.network.models.PostDto
