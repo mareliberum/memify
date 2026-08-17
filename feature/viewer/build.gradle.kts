@@ -44,6 +44,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.coil)
     implementation(libs.coil.base)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
