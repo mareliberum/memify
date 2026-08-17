@@ -2,7 +2,7 @@ package com.codekotliners.memify.features.home.presentation.state
 
 import androidx.annotation.StringRes
 import com.codekotliners.memify.core.models.Post
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.home.R
 
 enum class MainFeedTab(
     @StringRes val nameResId: Int,

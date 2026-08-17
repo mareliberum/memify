@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.home.R
 import com.codekotliners.memify.core.ui.components.CenteredWidget
 
 @Composable

@@ -1,0 +1,8 @@
+<resources>
+    <string name="memify">Memify</string>
+    <string name="popular_tab_name">Популярные</string>
+    <string name="new_tab_name">Новые</string>
+    <string name="network_errormessage">Ошибка во время загрузки. Проверьте подключение к сети</string>
+    <string name="unknown_error_message">Упс, что-то пошло не так, попробуйте позже</string>
+    <string name="empty_templates_tab_message">Кажется, здесь ничего нет</string>
+</resources>

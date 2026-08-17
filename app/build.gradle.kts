@@ -80,6 +80,7 @@ dependencies {
     implementation(project(":feature:settings"))
     implementation(project(":feature:profile"))
     implementation(project(":feature:create"))
+    implementation(project(":feature:home"))
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)
