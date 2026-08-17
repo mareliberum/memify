@@ -30,6 +30,7 @@ android {
 
 dependencies {
     implementation(project(":core:network"))
+    implementation(project(":core:common"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
     implementation(project(":core:database"))
