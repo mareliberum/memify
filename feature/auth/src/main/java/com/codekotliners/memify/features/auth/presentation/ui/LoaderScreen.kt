@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.auth.R
 
 @Composable
 fun LoaderScreen() {

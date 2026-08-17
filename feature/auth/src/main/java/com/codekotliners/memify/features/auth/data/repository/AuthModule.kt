@@ -2,6 +2,7 @@ package com.codekotliners.memify.features.auth.data.repository
 
 import android.content.Context
 import com.codekotliners.memify.core.repositories.user.UserRepository
+import com.codekotliners.memify.features.auth.di.GoogleWebClientId
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -27,7 +28,8 @@ object AuthModule {
         repository: UserRepository,
         @ApplicationContext context: Context,
         userRepo: UserRepository,
-    ): AuthRepository = AuthRepositoryImpl(firebaseAuth, userRepo, context)
+        @GoogleWebClientId webClientId: String,
+    ): AuthRepository = AuthRepositoryImpl(firebaseAuth, userRepo, context, webClientId)
 
     @Provides
     fun provideFirestore(): FirebaseFirestore =

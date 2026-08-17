@@ -14,7 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.logger.Logger
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
@@ -70,6 +70,7 @@ fun AuthScreen(
     if (authState == AuthState.Unauthenticated) {
         AuthScreenContent(
             navController = navController,
+            webClientId = viewModel.webClientId,
             onGoogleLauncherClick = {
                 googleLauncher.launch(viewModel.getGoogleSignInIntent())
             },

@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codekotliners.memify.core.common.Response
+import com.codekotliners.memify.features.auth.di.GoogleWebClientId
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,7 @@ sealed class AuthState {
 @HiltViewModel
 class AuthenticationViewModel @Inject constructor(
     private val repository: AuthRepository,
+    @GoogleWebClientId val webClientId: String,
 ) : ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Loading)
     val authState: StateFlow<AuthState> = _authState

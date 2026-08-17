@@ -37,25 +37,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.authButton
-import com.codekotliners.memify.features.auth.presentation.state.LoginEvent
-import com.codekotliners.memify.features.auth.presentation.state.LoginUiState
-import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.LoginErrors
+import com.codekotliners.memify.features.auth.presentation.state.RegistrationEvent
+import com.codekotliners.memify.features.auth.presentation.state.RegistrationUiState
+import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.ConfirmPasswordErrors
+import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.EmailErrors
+import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.NameErrors
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.PasswordErrors
-import com.codekotliners.memify.features.auth.presentation.viewmodel.LoginViewModel
+import com.codekotliners.memify.features.auth.presentation.viewmodel.RegistrationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun RegistrationScreen(
     navController: NavHostController,
-    viewModel: LoginViewModel = hiltViewModel(),
+    viewModel: RegistrationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.loginCompletedSuccessfully) {
-        if (uiState.loginCompletedSuccessfully) {
+    LaunchedEffect(uiState.registrationCompletedSuccessfully) {
+        if (uiState.registrationCompletedSuccessfully) {
             navController.previousBackStackEntry
                 ?.savedStateHandle
                 ?.set(AUTH_BRANCH_SUCCESS_EVENT, true)
@@ -64,10 +66,10 @@ fun LoginScreen(
         }
     }
 
-    val errorCode = uiState.loginErrorCode
+    val errorCode = uiState.registrationErrorCode
     if (errorCode != null) {
         AuthErrorDialog(
-            titleMessage = stringResource(R.string.login_failed),
+            titleMessage = stringResource(R.string.registration_failed),
             errorMessage = stringResource(errorCode),
             onDismiss = viewModel::dismissErrorDialog,
         )
@@ -78,7 +80,7 @@ fun LoginScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.login_title),
+                        text = stringResource(R.string.registration_title),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 },
@@ -107,7 +109,7 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                LoginForm(
+                RegistrationForm(
                     uiState = uiState,
                     onEvent = viewModel::onEvent,
                 )
@@ -119,9 +121,9 @@ fun LoginScreen(
 }
 
 @Composable
-fun LoginForm(
-    uiState: LoginUiState,
-    onEvent: (LoginEvent) -> Unit,
+fun RegistrationForm(
+    uiState: RegistrationUiState,
+    onEvent: (RegistrationEvent) -> Unit,
 ) {
     Column(
         modifier =
@@ -132,51 +134,73 @@ fun LoginForm(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         OutlinedTextField(
-            isError = uiState.loginErrors.isNotEmpty(),
-            value = uiState.login,
-            onValueChange = { onEvent(LoginEvent.LoginChanged(it)) },
-            label = { Text(stringResource(R.string.Email)) },
+            isError = uiState.nameErrors.isNotEmpty(),
+            value = uiState.name,
+            onValueChange = { onEvent(RegistrationEvent.NameChanged(it)) },
+            label = { Text(stringResource(R.string.name_field)) },
             modifier = Modifier.fillMaxWidth(),
         )
-        LoginErrors(uiState.loginErrors)
+        NameErrors(uiState.nameErrors)
+        Spacer(Modifier.height(16.dp))
+
+        OutlinedTextField(
+            isError = uiState.emailErrors.isNotEmpty(),
+            value = uiState.email,
+            onValueChange = { onEvent(RegistrationEvent.EmailChanged(it)) },
+            label = { Text(stringResource(R.string.email_field)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        EmailErrors(uiState.emailErrors)
         Spacer(Modifier.height(16.dp))
 
         PasswordField(
             isError = uiState.passwordErrors.isNotEmpty(),
             label = stringResource(R.string.password_field),
             password = uiState.password,
-            onPasswordChanged = { onEvent(LoginEvent.PasswordChanged(it)) },
+            onPasswordChanged = { onEvent(RegistrationEvent.PasswordChanged(it)) },
         )
         PasswordErrors(uiState.passwordErrors)
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                onEvent(LoginEvent.LoginClicked)
-            },
-            colors =
-                ButtonColors(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.onPrimary,
-                    Color.Gray,
-                    Color.White,
-                ),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(
-                stringResource(R.string.login_button),
-                style = MaterialTheme.typography.authButton,
-            )
-        }
+        PasswordField(
+            isError = uiState.confirmPasswordErrors.isNotEmpty(),
+            label = stringResource(R.string.password_confirmation_field),
+            password = uiState.confirmPassword,
+            onPasswordChanged = { onEvent(RegistrationEvent.ConfirmPasswordChanged(it)) },
+        )
+        ConfirmPasswordErrors(uiState.confirmPasswordErrors)
+        Spacer(Modifier.height(50.dp))
+
+        RegisterButton(onEvent)
+    }
+}
+
+@Composable
+private fun RegisterButton(onEvent: (RegistrationEvent) -> Unit) {
+    Button(
+        onClick = { onEvent(RegistrationEvent.RegisterClicked) },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors =
+            ButtonColors(
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.onPrimary,
+                Color.Gray,
+                Color.White,
+            ),
+    ) {
+        Text(
+            text = stringResource(R.string.register_button),
+            style = MaterialTheme.typography.authButton,
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLoginScreen() {
-    LoginScreen(navController = NavHostController(LocalContext.current))
+fun PreviewRegistrationScreen() {
+    RegistrationScreen(navController = NavHostController(LocalContext.current))
 }

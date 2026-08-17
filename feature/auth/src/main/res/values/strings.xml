@@ -1,0 +1,37 @@
+<resources>
+    <string name="login_google_button">Войти с помощью Google</string>
+    <string name="login_mail_button">Войти с помощью почты</string>
+    <string name="no_account_question">Нет аккаунта?</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="password_confirmation_field">Подтверждение пароля</string>
+    <string name="password_field">Пароль</string>
+    <string name="name_field">Имя</string>
+    <string name="email_field">Почта</string>
+    <string name="toggle_confirm_password_visibility">Переключить видимость подтверждения пароля</string>
+    <string name="registration_title">Регистрация</string>
+    <string name="go_back">Назад</string>
+    <string name="login_button">Войти</string>
+    <string name="login_title">Вход</string>
+    <string name="login_error_message">Ошибка входа</string>
+    <string name="id_token_not_found">ID токен не найден</string>
+    <string name="auth_error">Ошибка авторизации:</string>
+    <string name="not_less_than_8_symbols_requirement">не менее 8 символов</string>
+    <string name="require_special_character">хотя бы один специальный символ</string>
+    <string name="require_numeric_character">хотя бы одну цифру</string>
+    <string name="require_uppercase_character">хотя бы одну заглавную букву</string>
+    <string name="password_requirements_header">Требования к паролю:</string>
+    <string name="email_cannot_be_empty">Это поле не может быть пустым</string>
+    <string name="invalid_email_format">Неверный формат электронной почты</string>
+    <string name="name_cannot_be_empty">Имя не может быть пустым</string>
+    <string name="name_too_short">Имя слишком короткое</string>
+    <string name="passwords_do_not_match">Пароли не совпадают</string>
+    <string name="registration_failed">Ошибка регистрации</string>
+    <string name="login_failed">Ошибка входа</string>
+    <string name="auth_error_network">Проблемы с интернет-соединением. Проверьте подключение и попробуйте снова.</string>
+    <string name="registration_error_general">Не удалось завершить регистрацию. Пожалуйста, попробуйте позже.</string>
+    <string name="login_error_general">Не удалось войти в аккаунт. Пожалуйста, проверьте введенные данные.</string>
+    <string name="ok">Ok</string>
+    <string name="registration_error_email_already_used">Этот адресс электронной почты уже кем-то используется.</string>
+    <string name="auth">Авторизация...</string>
+    <string name="Email">Почта</string>
+</resources>

@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.LocalExtraColors
 import com.codekotliners.memify.core.theme.authButton
@@ -44,6 +44,7 @@ import com.codekotliners.memify.core.theme.suggestNewAccount
 @Composable
 fun AuthScreenContent(
     navController: NavController,
+    webClientId: String,
     onGoogleLauncherClick: () -> Unit,
     onLogInWithGoogle: (String) -> Unit,
 ) {
@@ -92,7 +93,7 @@ fun AuthScreenContent(
                 navController = navController,
                 onGoogleLauncherClick = onGoogleLauncherClick,
             )
-            GoogleSignInHandler { tokenId -> onLogInWithGoogle(tokenId) }
+            GoogleSignInHandler(webClientId = webClientId) { tokenId -> onLogInWithGoogle(tokenId) }
         }
     }
 }

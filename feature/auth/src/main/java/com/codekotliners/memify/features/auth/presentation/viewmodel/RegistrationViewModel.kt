@@ -3,7 +3,7 @@ package com.codekotliners.memify.features.auth.presentation.viewmodel
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.common.Response
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import com.codekotliners.memify.features.auth.presentation.state.RegistrationEvent

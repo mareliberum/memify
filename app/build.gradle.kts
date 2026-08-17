@@ -75,6 +75,7 @@ dependencies {
     implementation(project(":feature:passwordrecovery"))
     implementation(project(":feature:passwordupdate"))
     implementation(project(":feature:viewer"))
+    implementation(project(":feature:auth"))
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)

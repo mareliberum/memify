@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.auth.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -18,6 +18,7 @@ import com.google.android.gms.common.api.ApiException
 
 @Composable
 fun GoogleSignInHandler(
+    webClientId: String,
     onTokenReceived: (String) -> Unit,
 ) {
     val context = LocalContext.current
@@ -42,7 +43,7 @@ fun GoogleSignInHandler(
             val gso =
                 GoogleSignInOptions
                     .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(context.getString(R.string.default_web_client_id))
+                    .requestIdToken(webClientId)
                     .requestEmail()
                     .build()
             GoogleSignIn.getClient(context, gso)
