@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.templates.R
 
 @Composable
 fun NoContentTab() {

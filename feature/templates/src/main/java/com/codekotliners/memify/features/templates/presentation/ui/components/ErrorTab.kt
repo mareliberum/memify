@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.templates.R
 import com.codekotliners.memify.features.templates.presentation.state.ErrorType
 
 @Composable

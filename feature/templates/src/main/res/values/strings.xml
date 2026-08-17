@@ -1,0 +1,12 @@
+<resources>
+    <string name="network_errormessage">Ошибка во время загрузки. Проверьте подключение к сети</string>
+    <string name="need_authenticated_message">Войдите в аккаунт чтобы воспользоваться этой функцией</string>
+    <string name="unknown_error_message">Упс, что-то пошло не так, попробуйте позже</string>
+    <string name="link_vk_account_message">Привяжите Ваш аккаунт ВК в настройках, чтобы воспользоваться этой функцией</string>
+    <string name="Best">Лучшее</string>
+    <string name="New">Новое</string>
+    <string name="Favourites">Избранное</string>
+    <string name="templates_tab_vk">ВК</string>
+    <string name="empty_templates_tab_message">Кажется, здесь ничего нет</string>
+    <string name="log_in_account">Войти в аккаунт</string>
+</resources>

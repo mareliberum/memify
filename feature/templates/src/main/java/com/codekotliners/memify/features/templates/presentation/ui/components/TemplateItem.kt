@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.templates.R
 import com.codekotliners.memify.core.models.Template
 import com.codekotliners.memify.core.ui.components.CenteredWidget
 import com.codekotliners.memify.core.ui.components.shimmerEffect

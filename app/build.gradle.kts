@@ -76,6 +76,7 @@ dependencies {
     implementation(project(":feature:passwordupdate"))
     implementation(project(":feature:viewer"))
     implementation(project(":feature:auth"))
+    implementation(project(":feature:templates"))
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)
