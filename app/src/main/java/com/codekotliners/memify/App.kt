@@ -1,17 +1,14 @@
 package com.codekotliners.memify
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
@@ -20,6 +17,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.codekotliners.memify.core.logger.Logger
+import com.codekotliners.memify.core.ui.LocalNavAnimatedVisibilityScope
+import com.codekotliners.memify.core.ui.LocalSharedTransitionScope
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.features.auth.presentation.ui.AuthScreen
@@ -36,11 +35,6 @@ import com.codekotliners.memify.features.settings.presentation.viewmodel.Setting
 import com.codekotliners.memify.core.navigation.entities.ImageType
 import com.codekotliners.memify.features.viewer.presentation.ui.ImageViewerScreen
 import java.util.Base64
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
-
-val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
 
 @Suppress("detekt.LongMethod")
 @OptIn(ExperimentalSharedTransitionApi::class)

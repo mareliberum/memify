@@ -1,0 +1,8 @@
+<resources>
+    <string name="ConfirmCodeBtn">Подтвердить код</string>
+    <string name="InputCodeFromEmailLabel">Введите код восстановления с электронной почты</string>
+    <string name="RecoveryCodeLabel">код восстановления</string>
+    <string name="RecoveryPassword">Восстановление пароля</string>
+    <string name="ResendCodeBtn">Отправить код повторно</string>
+    <string name="go_backBtn">go_back</string>
+</resources>

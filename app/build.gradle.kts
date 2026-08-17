@@ -70,6 +70,12 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:user"))
 
+    // Feature modules
+    implementation(project(":feature:confirmation"))
+    implementation(project(":feature:passwordrecovery"))
+    implementation(project(":feature:passwordupdate"))
+    implementation(project(":feature:viewer"))
+
     // Androidx Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

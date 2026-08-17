@@ -1,0 +1,7 @@
+<resources>
+    <string name="ConfirmPassword">Потвердить пароль</string>
+    <string name="EnterNewPassword">Введите новый пароль</string>
+    <string name="NewPassword">Новый пароль</string>
+    <string name="back">Вернуться назад</string>
+    <string name="toggle_password_visibility">Переключить видимость пароля</string>
+</resources>

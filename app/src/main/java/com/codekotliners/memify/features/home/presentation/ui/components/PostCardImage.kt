@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.codekotliners.memify.LocalNavAnimatedVisibilityScope
-import com.codekotliners.memify.LocalSharedTransitionScope
+import com.codekotliners.memify.core.ui.LocalNavAnimatedVisibilityScope
+import com.codekotliners.memify.core.ui.LocalSharedTransitionScope
 import com.codekotliners.memify.core.models.Post
 import com.codekotliners.memify.core.ui.components.CenteredCircularProgressIndicator
 

@@ -1,0 +1,7 @@
+<resources>
+    <string name="InputEmailForRecovery">Введите адрес электронной почты, к которому привязан ваш аккаунт</string>
+    <string name="RecoveryPassword">Восстановление пароля</string>
+    <string name="SendRecoveryCodeBtn">Отправить код восстановления</string>
+    <string name="email">email</string>
+    <string name="go_backBtn">go_back</string>
+</resources>
