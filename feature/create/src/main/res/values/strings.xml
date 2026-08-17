@@ -1,0 +1,19 @@
+<resources>
+    <string name="publishing_process">Публикация...</string>
+    <string name="editor_screen_title">Редактор</string>
+    <string name="description_swipe_bottom_sheet">Свайп</string>
+    <string name="choose_pattern">Выбрать шаблон</string>
+    <string name="Impact">Impact</string>
+    <string name="Default">Default</string>
+    <string name="Sans">Sans</string>
+    <string name="Serif">Serif</string>
+    <string name="Mono">Mono</string>
+    <string name="Cursive">Cursive</string>
+    <string name="Light">Light</string>
+    <string name="Normal">Normal</string>
+    <string name="Medium">Medium</string>
+    <string name="Bold">Bold</string>
+    <string name="share_action">Поделиться</string>
+    <string name="download_action">Скачать</string>
+    <string name="publish_action">Опубликовать</string>
+</resources>

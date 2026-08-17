@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.create.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

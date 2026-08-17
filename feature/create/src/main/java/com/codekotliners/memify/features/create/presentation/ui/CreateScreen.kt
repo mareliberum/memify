@@ -70,7 +70,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.create.R
 import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.core.ui.components.CenteredCircularProgressIndicator
 import com.codekotliners.memify.features.create.presentation.ui.components.ActionsRow
