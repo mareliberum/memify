@@ -27,6 +27,7 @@ dependencies {
     implementation(project(":core:common"))
 
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
     implementation(libs.firebase.storage.ktx)
