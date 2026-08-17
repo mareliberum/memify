@@ -77,6 +77,7 @@ dependencies {
     implementation(project(":feature:viewer"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:templates"))
+    implementation(project(":feature:settings"))
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)

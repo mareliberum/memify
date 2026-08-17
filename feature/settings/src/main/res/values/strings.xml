@@ -1,0 +1,24 @@
+<resources>
+    <string name="password_change_success">Пароль успешно изменён</string>
+    <string name="passwords_not_match">Пароли не совпадают</string>
+    <string name="incorrect_current_password">Текущий пароль неверный</string>
+    <string name="password_too_short">Пароль слишком короткий (минимум 8 символов)</string>
+    <string name="password_no_uppercase">Добавьте хотя бы одну заглавную букву</string>
+    <string name="password_no_digit">Добавьте хотя бы одну цифру</string>
+    <string name="password_no_special_char">Добавьте хотя бы один специальный символ</string>
+    <string name="go_backBtn">go_back</string>
+    <string name="settings_title">Настройки</string>
+    <string name="name_changed">Имя успешно изменено</string>
+    <string name="user_name">Имя пользователя</string>
+    <string name="new_name">Новое имя</string>
+    <string name="save_button">Сохранить</string>
+    <string name="theme_title">Тема</string>
+    <string name="safety">Безопасность</string>
+    <string name="require_current_password">Старый пароль</string>
+    <string name="require_new_password">Новый пароль</string>
+    <string name="repeat_new_password">Повторите пароль</string>
+    <string name="account_control">Управление аккаунтом</string>
+    <string name="logout">Выйти из аккаунта</string>
+    <string name="link_vk">Аккаунт ВК</string>
+    <string name="login">Войти в аккаунт</string>
+</resources>

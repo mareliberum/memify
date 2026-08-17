@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.settings.R
 import com.codekotliners.memify.core.theme.authButton
 import com.codekotliners.memify.core.theme.suggestNewAccount
 import com.codekotliners.memify.core.ui.components.AppScaffold

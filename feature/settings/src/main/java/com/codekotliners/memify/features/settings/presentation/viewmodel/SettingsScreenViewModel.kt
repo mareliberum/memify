@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.R
+import com.codekotliners.memify.features.settings.R
 import com.codekotliners.memify.core.theme.ThemeMode
 import com.codekotliners.memify.core.usecases.UpdateProfileImageUseCase
 import com.codekotliners.memify.features.settings.presentation.domain.UpdatePasswordResult
