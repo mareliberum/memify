@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.codekotliners.memify.core.database"
+    namespace = "com.codekotliners.memify.core.user"
     compileSdk = 35
 
     defaultConfig {
@@ -25,13 +25,12 @@ android {
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:common"))
+    implementation(project(":core:network"))
 
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    // Used by DraftsRepositoryImpl to download and save images locally.
-    implementation(libs.coil.base)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

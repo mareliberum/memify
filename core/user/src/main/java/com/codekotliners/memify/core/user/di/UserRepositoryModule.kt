@@ -1,4 +1,4 @@
-package com.codekotliners.memify.core.di
+package com.codekotliners.memify.core.user.di
 
 import com.codekotliners.memify.core.repositories.user.UserRepository
 import com.codekotliners.memify.core.repositories.user.UserRepositoryImpl

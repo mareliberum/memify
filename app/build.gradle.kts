@@ -68,6 +68,7 @@ dependencies {
     implementation(project(":core:prefs"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
+    implementation(project(":core:user"))
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)

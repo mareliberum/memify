@@ -1,4 +1,4 @@
-package com.codekotliners.memify.features.home.data.repository
+package com.codekotliners.memify.core.repositories.likes
 
 import android.util.Log
 import com.codekotliners.memify.core.data.constants.POSTS_COLLECTION_NAME
