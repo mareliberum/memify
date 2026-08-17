@@ -80,7 +80,7 @@ fun TemplateItem(
                 is AsyncImagePainter.State.Success, AsyncImagePainter.State.Empty -> {
                     if (template.isFavourite != null) {
                         val iconCode =
-                            if (template.isFavourite) {
+                            if (template.isFavourite == true) {
                                 R.drawable.template_like_on
                             } else {
                                 R.drawable.template_like_off
@@ -91,7 +91,7 @@ fun TemplateItem(
                                     iconCode,
                                 ),
                             contentDescription = null,
-                            tint = if (template.isFavourite) MaterialTheme.colorScheme.error else Color.White,
+                            tint = if (template.isFavourite == true) MaterialTheme.colorScheme.error else Color.White,
                             modifier =
                                 Modifier
                                     .padding(2.dp)
