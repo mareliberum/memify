@@ -82,7 +82,6 @@ import com.codekotliners.memify.features.auth.presentation.ui.AUTH_SUCCESS_EVENT
 import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileState
 import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileViewModel
 import com.codekotliners.memify.features.templates.presentation.ui.components.ErrorLoadingItem
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import kotlin.math.min
 import androidx.core.net.toUri
@@ -122,7 +121,7 @@ fun ProfileScreen(
             Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
-        topBar = { ProfileTopBar(navController) },
+        topBar = { ProfileTopBar(navController, isLoggedIn = state.isLoggedIn) },
         floatingActionButton = {
             ProfileFloatingActionButton(
                 showFloatingBtn = !isExtended,
@@ -184,11 +183,8 @@ private fun rememberScrollOffset(scrollState: LazyGridState): Float =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProfileTopBar(navController: NavController) {
-    var route = NavRoutes.SettingsUnlogged.route
-    if (FirebaseAuth.getInstance().currentUser != null) {
-        route = NavRoutes.SettingsLogged.route
-    }
+private fun ProfileTopBar(navController: NavController, isLoggedIn: Boolean) {
+    val route = if (isLoggedIn) NavRoutes.SettingsLogged.route else NavRoutes.SettingsUnlogged.route
 
     CenterAlignedTopAppBar(
         windowInsets = WindowInsets(0),

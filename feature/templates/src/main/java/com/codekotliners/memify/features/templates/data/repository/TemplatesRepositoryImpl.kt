@@ -1,13 +1,12 @@
 package com.codekotliners.memify.features.templates.data.repository
 
 import com.codekotliners.memify.core.models.Template
+import com.codekotliners.memify.core.prefs.TokenStore
 import com.codekotliners.memify.features.templates.domain.datasource.TemplatesDatasource
 import com.codekotliners.memify.features.templates.domain.datasource.TemplatesFilter
 import com.codekotliners.memify.features.templates.domain.repository.TemplatesRepository
 import com.codekotliners.memify.features.templates.exceptions.UnauthorizedActionException
 import com.codekotliners.memify.features.templates.exceptions.VKUnauthorizedActionException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.vk.api.sdk.VK
 import com.vk.id.vksdksupport.withVKIDToken
 import com.vk.sdk.api.photos.PhotosService
@@ -19,7 +18,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class TemplatesRepositoryImpl @Inject constructor(
-    private val remoteDatasource: TemplatesDatasource<DocumentSnapshot>,
+    private val remoteDatasource: TemplatesDatasource<Int>,
+    private val tokenStore: TokenStore,
 ) : TemplatesRepository {
     private val bestTemplatesConfig = FeedConfig()
     private val newTemplatesConfig = FeedConfig(loop = true)
@@ -32,10 +32,7 @@ class TemplatesRepositoryImpl @Inject constructor(
         if (refresh) {
             bestTemplatesConfig.reset()
         }
-        var userId: String? = null
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            userId = FirebaseAuth.getInstance().currentUser!!.uid
-        }
+        val userId = tokenStore.getUserId()
         val (data, nextToStart) =
             remoteDatasource.getFilteredTemplates(
                 TemplatesFilter.Best(userId),
@@ -48,10 +45,7 @@ class TemplatesRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getNewTemplates(limit: Long, refresh: Boolean): Flow<Template> {
-        var userId: String? = null
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            userId = FirebaseAuth.getInstance().currentUser!!.uid
-        }
+        val userId = tokenStore.getUserId()
         val (data, nextToStart) =
             remoteDatasource.getFilteredTemplates(
                 TemplatesFilter.New(userId),
@@ -100,15 +94,15 @@ class TemplatesRepositoryImpl @Inject constructor(
             return flow { }
         }
 
+        val userId = tokenStore.getUserId()
         val result: Flow<Template> =
-            if (FirebaseAuth.getInstance().currentUser == null) {
+            if (userId == null) {
                 flow { throw UnauthorizedActionException("User not logged in") }
             } else {
                 if (refresh) {
                     favouritesTemplatesConfig.reset()
                 }
 
-                val userId = FirebaseAuth.getInstance().currentUser!!.uid
                 val (data, nextToStart) =
                     remoteDatasource.getFilteredTemplates(
                         TemplatesFilter.Favorites(userId),

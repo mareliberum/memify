@@ -5,7 +5,6 @@ plugins {
     id("com.google.devtools.ksp")
     id("dagger.hilt.android.plugin")
     id("com.vk.vkompose") version "0.6.2"
-    id("com.google.firebase.crashlytics")
     id("vkid.manifest.placeholders")
 }
 android {
@@ -92,7 +91,6 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.coil.base)
     implementation(libs.androidx.browser)
-    implementation(libs.firebase.storage.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
@@ -122,14 +120,8 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
-    implementation(libs.google.firebase.crashlytics)
+    // Google Sign-In (play-services-auth) — не Firebase, см. feature:auth.
     implementation(libs.play.services.auth)
-    implementation(libs.firebase.storage)
 
     // Collections
     implementation(libs.kotlinx.collections.immutable)
@@ -170,4 +162,5 @@ vkompose {
     sourceInformationClean = true
 }
 
-apply(plugin = "com.google.gms.google-services")
+// Firebase убран полностью: плагины com.google.firebase.crashlytics и
+// com.google.gms.google-services больше не применяются, google-services.json не используется.

@@ -1,7 +1,7 @@
 package com.codekotliners.memify.core.network.di
 
 import com.codekotliners.memify.core.network.postsdatasource.PostsDatasource
-import com.codekotliners.memify.core.network.postsdatasource.PostsFbStorageDatasource
+import com.codekotliners.memify.core.network.postsdatasource.PostsRestDatasource
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -11,7 +11,5 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class PostsDatasourceModule {
     @Binds
-    abstract fun bindPostsDatasource(
-        impl: PostsFbStorageDatasource,
-    ): PostsDatasource
+    abstract fun bindPostsDatasource(impl: PostsRestDatasource): PostsDatasource
 }

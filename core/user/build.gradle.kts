@@ -26,11 +26,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:common"))
     implementation(project(":core:network"))
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.storage)
+    implementation(project(":core:prefs"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

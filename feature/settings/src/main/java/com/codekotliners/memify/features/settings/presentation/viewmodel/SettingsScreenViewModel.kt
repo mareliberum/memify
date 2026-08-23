@@ -4,15 +4,15 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.features.settings.R
+import com.codekotliners.memify.core.prefs.TokenStore
 import com.codekotliners.memify.core.theme.ThemeMode
 import com.codekotliners.memify.core.usecases.UpdateProfileImageUseCase
+import com.codekotliners.memify.features.settings.R
 import com.codekotliners.memify.features.settings.presentation.domain.UpdatePasswordResult
 import com.codekotliners.memify.features.settings.presentation.domain.WeakPasswordReason
 import com.codekotliners.memify.features.settings.presentation.usecase.SignOutUseCase
 import com.codekotliners.memify.features.settings.presentation.usecase.UpdateUserNameUseCase
 import com.codekotliners.memify.features.settings.presentation.usecase.UpdateUserPasswordUseCase
-import com.google.firebase.auth.FirebaseAuth
 import com.vk.id.AccessToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +28,7 @@ class SettingsScreenViewModel @Inject constructor(
     private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val singOutUseCase: SignOutUseCase,
     private val sharedPreferences: SharedPreferences,
+    private val tokenStore: TokenStore,
 ) : ViewModel() {
     private val _theme = MutableStateFlow<ThemeMode>(ThemeMode.FOLLOW_SYSTEM)
     val theme: StateFlow<ThemeMode> = _theme.asStateFlow()
@@ -53,7 +54,9 @@ class SettingsScreenViewModel @Inject constructor(
         }
     }
 
-    fun isAuthenticated(): Boolean = FirebaseAuth.getInstance().currentUser != null
+    // Раньше — FirebaseAuth.getInstance().currentUser != null. Теперь факт логина хранится
+    // локально в TokenStore.
+    fun isAuthenticated(): Boolean = tokenStore.isLoggedIn()
 
     fun singOut() {
         viewModelScope.launch {

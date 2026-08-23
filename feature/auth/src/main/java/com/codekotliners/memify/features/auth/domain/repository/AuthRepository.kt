@@ -3,14 +3,15 @@ package com.codekotliners.memify.features.auth.domain.repository
 import android.content.Intent
 import androidx.activity.result.ActivityResult
 import com.codekotliners.memify.core.common.Response
-import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
     fun getAuthState(viewModelScope: CoroutineScope): StateFlow<Boolean>
 
-    suspend fun getCurrentUser(): FirebaseUser?
+    // Раньше возвращал FirebaseUser? — теперь возвращает id пользователя из TokenStore (или
+    // null, если не залогинен). Вызывающий код (`repository.getCurrentUser() != null`) не поменялся.
+    suspend fun getCurrentUser(): String?
 
     suspend fun firebaseCreateAccount(name: String, email: String, password: String): Response<Boolean>
 

@@ -8,12 +8,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codekotliners.memify.core.database.entities.UriEntity
 import com.codekotliners.memify.core.network.models.PostDto
+import com.codekotliners.memify.core.prefs.TokenStore
 import com.codekotliners.memify.core.repositories.UriRepository
 import com.codekotliners.memify.core.repositories.user.UserRepository
 import com.codekotliners.memify.core.usecases.GetUserDataUseCase
 import com.codekotliners.memify.core.usecases.UpdateProfileImageUseCase
 import com.codekotliners.memify.core.repositories.likes.LikesRepository
-import com.google.firebase.auth.FirebaseAuth
 import com.vk.id.VKID
 import com.vk.id.VKIDUser
 import com.vk.id.refreshuser.VKIDGetUserCallback
@@ -39,6 +39,7 @@ class ProfileViewModel @Inject constructor(
     private val getUserDataUseCase: GetUserDataUseCase,
     private val uriRepository: UriRepository,
     private val likesRepository: LikesRepository,
+    private val tokenStore: TokenStore,
 ) : ViewModel() {
     private val _state = mutableStateOf(ProfileState())
     val state: State<ProfileState> = _state
@@ -50,7 +51,7 @@ class ProfileViewModel @Inject constructor(
     val likedPosts: State<List<PostDto>> = _likedPosts
 
     init {
-        if (FirebaseAuth.getInstance().currentUser != null) {
+        if (tokenStore.isLoggedIn()) {
             _state.value = _state.value.copy(isLoggedIn = true)
             viewModelScope.launch {
                 _likedPosts.value = likesRepository.getLikedPosts()
@@ -65,12 +66,12 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun checkLogin() {
-        val isLoggedInActually = (FirebaseAuth.getInstance().currentUser != null)
+        val isLoggedInActually = tokenStore.isLoggedIn()
         if (_state.value.isLoggedIn != isLoggedInActually) {
             _state.value = _state.value.copy(isLoggedIn = isLoggedInActually)
         }
 
-        if (FirebaseAuth.getInstance().currentUser != null) {
+        if (isLoggedInActually) {
             _state.value = _state.value.copy(isLoggedIn = true)
             viewModelScope.launch {
                 _likedPosts.value = likesRepository.getLikedPosts()
@@ -87,11 +88,11 @@ class ProfileViewModel @Inject constructor(
             val imageUri = updateProfileImageUseCase.getProfileImageUrl()?.toUri()
 
             // Пробуем получить имя синхронно
-            val userNameFromFirebase = getUserDataUseCase.getUserName()
+            val userNameFromBackend = getUserDataUseCase.getUserName()
 
             // Если имя не получено, запускаем асинхронный запрос и ждём
             val userName =
-                userNameFromFirebase ?: withContext(Dispatchers.IO) {
+                userNameFromBackend ?: withContext(Dispatchers.IO) {
                     val deferred = CompletableDeferred<String>()
 
                     VKID.instance.getUserData(

@@ -3,6 +3,7 @@ package com.codekotliners.memify.features.templates.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codekotliners.memify.core.models.Template
+import com.codekotliners.memify.core.network.api.ApiException
 import com.codekotliners.memify.features.templates.domain.repository.TemplatesRepository
 import com.codekotliners.memify.features.templates.exceptions.UnauthorizedActionException
 import com.codekotliners.memify.features.templates.exceptions.VKUnauthorizedActionException
@@ -10,15 +11,17 @@ import com.codekotliners.memify.features.templates.presentation.state.ErrorType
 import com.codekotliners.memify.features.templates.presentation.state.Tab
 import com.codekotliners.memify.features.templates.presentation.state.TabState
 import com.codekotliners.memify.features.templates.presentation.state.TemplatesPageState
-import com.google.firebase.firestore.FirebaseFirestoreException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -129,19 +132,30 @@ class TemplatesFeedViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            // dataFlow оборачиваем в flow { emitAll(...) }, а не берём Flow из репозитория
+            // напрямую: getBestTemplates/getNewTemplates/... — suspend-функции, и сам их вызов
+            // (например неудачный HTTP-запрос) может бросить исключение ДО появления Flow —
+            // то есть вне зоны действия .catch{} ниже. Раньше такое исключение просто роняло
+            // корутину молча, состояние навсегда оставалось Loading ("вечная загрузка").
+            // Обернув suspend-вызов в flow { emitAll(...) }, мы делаем его ленивым: он выполнится
+            // только при сборе dataFlow, то есть уже под защитой .onEmpty{}/.catch{} ниже.
             val dataFlow =
-                when (tab) {
-                    Tab.BEST ->
-                        repository.getBestTemplates(limit = limitPerRequest, refresh = refreshing)
+                flow {
+                    val templatesFlow =
+                        when (tab) {
+                            Tab.BEST ->
+                                repository.getBestTemplates(limit = limitPerRequest, refresh = refreshing)
 
-                    Tab.NEW ->
-                        repository.getNewTemplates(limit = limitPerRequest, refresh = refreshing)
+                            Tab.NEW ->
+                                repository.getNewTemplates(limit = limitPerRequest, refresh = refreshing)
 
-                    Tab.FAVOURITE ->
-                        repository.getFavouriteTemplates(limit = limitPerRequest, refresh = refreshing)
+                            Tab.FAVOURITE ->
+                                repository.getFavouriteTemplates(limit = limitPerRequest, refresh = refreshing)
 
-                    Tab.VK_IMAGES ->
-                        repository.getVkTemplates(limit = limitPerRequest, refresh = refreshing)
+                            Tab.VK_IMAGES ->
+                                repository.getVkTemplates(limit = limitPerRequest, refresh = refreshing)
+                        }
+                    emitAll(templatesFlow)
                 }
 
             val buffer = mutableListOf<Template>()
@@ -177,7 +191,7 @@ class TemplatesFeedViewModel @Inject constructor(
                         when (e) {
                             is UnauthorizedActionException -> ErrorType.NEED_LOGIN
                             is VKUnauthorizedActionException -> ErrorType.NEED_LINK_VK
-                            is FirebaseFirestoreException -> ErrorType.NETWORK
+                            is IOException, is ApiException -> ErrorType.NETWORK
                             else -> ErrorType.UNKNOWN
                         }
 

@@ -1,15 +1,15 @@
 package com.codekotliners.memify.features.templates.data.repository
 
-import com.google.firebase.firestore.DocumentSnapshot
-
+// Раньше nextStart был Firestore DocumentSnapshot (курсор пагинации). У REST-бэка курсоров
+// нет — используем Int (сколько элементов уже загружено), см. TemplatesRestDatasource.kt.
 class FeedConfig(
     val loop: Boolean = false,
 ) {
     var scrollState: ScrollState = ScrollState.NONE
-    var nextStart: DocumentSnapshot? = null
+    var nextStart: Int? = null
         private set
 
-    fun setNextStart(newNextStart: DocumentSnapshot?) {
+    fun setNextStart(newNextStart: Int?) {
         nextStart = newNextStart
         scrollState =
             if (newNextStart == null && !loop) {

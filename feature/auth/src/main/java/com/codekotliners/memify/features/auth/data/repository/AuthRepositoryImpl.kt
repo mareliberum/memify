@@ -3,29 +3,43 @@ package com.codekotliners.memify.features.auth.data.repository
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResult
-import com.codekotliners.memify.core.models.UserData
-import com.codekotliners.memify.core.repositories.user.UserRepository
 import com.codekotliners.memify.core.common.Response
+import com.codekotliners.memify.core.network.api.ApiConfig
+import com.codekotliners.memify.core.network.api.authorizedRequest
+import com.codekotliners.memify.core.network.models.AuthResponseDto
+import com.codekotliners.memify.core.network.models.ForgotPasswordRequestDto
+import com.codekotliners.memify.core.network.models.GoogleAuthRequestDto
+import com.codekotliners.memify.core.network.models.LoginRequestDto
+import com.codekotliners.memify.core.network.models.RefreshRequestDto
+import com.codekotliners.memify.core.network.models.RegisterRequestDto
+import com.codekotliners.memify.core.prefs.TokenStore
 import com.codekotliners.memify.features.auth.di.GoogleWebClientId
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
+import com.google.android.gms.common.api.ApiException as GoogleApiException
 import dagger.hilt.android.qualifiers.ApplicationContext
+import io.ktor.client.HttpClient
+import io.ktor.client.request.setBody
+import io.ktor.client.request.url
+import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
+import io.ktor.http.contentType
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
+/**
+ * Полностью своя авторизация вместо Firebase Auth: email/password + Google — но Google
+ * ID-токен теперь проверяет собственный бэк (/auth/google), а не Firebase. GoogleSignInClient
+ * тут остаётся — это чистый Google Sign-In SDK (play-services-auth), к Firebase не привязан,
+ * он только выдаёт ID-токен, который дальше идёт на бэк.
+ */
 class AuthRepositoryImpl @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val userRepo: UserRepository,
+    private val httpClient: HttpClient,
+    private val tokenStore: TokenStore,
     @ApplicationContext private val context: Context,
     @GoogleWebClientId private val webClientId: String,
 ) : AuthRepository {
@@ -40,118 +54,111 @@ class AuthRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getAuthState(viewModelScope: CoroutineScope) =
-        callbackFlow {
-            val authStateListener =
-                FirebaseAuth.AuthStateListener { auth ->
-                    trySend(auth.currentUser == null)
+    // Раньше слушали живые события FirebaseAuth.AuthStateListener. У REST-бэка такого нет —
+    // тут просто фиксируем состояние на момент вызова (обычно вызывается один раз при старте).
+    override fun getAuthState(viewModelScope: CoroutineScope): StateFlow<Boolean> =
+        MutableStateFlow(tokenStore.getAccessToken() == null).asStateFlow()
+
+    override suspend fun getCurrentUser(): String? = tokenStore.getUserId()
+
+    override suspend fun firebaseCreateAccount(name: String, email: String, password: String): Response<Boolean> =
+        try {
+            val response: AuthResponseDto =
+                httpClient.authorizedRequest(tokenStore) {
+                    method = HttpMethod.Post
+                    url(ApiConfig.baseUrl + "auth/register")
+                    contentType(ContentType.Application.Json)
+                    setBody(RegisterRequestDto(email = email, password = password, username = name))
                 }
-            auth.addAuthStateListener(authStateListener)
-            awaitClose {
-                auth.removeAuthStateListener(authStateListener)
+            tokenStore.saveTokens(response.accessToken, response.refreshToken, response.userId)
+            Response.Success(true)
+        } catch (e: Exception) {
+            Response.Failure(e)
+        }
+
+    override suspend fun firebaseSignIn(email: String, password: String): Response<Boolean> =
+        try {
+            val response: AuthResponseDto =
+                httpClient.authorizedRequest(tokenStore) {
+                    method = HttpMethod.Post
+                    url(ApiConfig.baseUrl + "auth/login")
+                    contentType(ContentType.Application.Json)
+                    setBody(LoginRequestDto(email = email, password = password))
+                }
+            tokenStore.saveTokens(response.accessToken, response.refreshToken, response.userId)
+            Response.Success(true)
+        } catch (e: Exception) {
+            Response.Failure(e)
+        }
+
+    override suspend fun firebaseGoogleAuth(idToken: String): Response<Boolean> =
+        try {
+            val response: AuthResponseDto =
+                httpClient.authorizedRequest(tokenStore) {
+                    method = HttpMethod.Post
+                    url(ApiConfig.baseUrl + "auth/google")
+                    contentType(ContentType.Application.Json)
+                    setBody(GoogleAuthRequestDto(idToken = idToken))
+                }
+            tokenStore.saveTokens(response.accessToken, response.refreshToken, response.userId)
+            Response.Success(true)
+        } catch (e: Exception) {
+            Response.Failure(e)
+        }
+
+    override suspend fun firebaseSignOut(): Response<Boolean> =
+        try {
+            val refreshToken = tokenStore.getRefreshToken()
+            if (refreshToken != null) {
+                try {
+                    httpClient.authorizedRequest<Unit>(tokenStore) {
+                        method = HttpMethod.Post
+                        url(ApiConfig.baseUrl + "auth/logout")
+                        contentType(ContentType.Application.Json)
+                        setBody(RefreshRequestDto(refreshToken))
+                    }
+                } catch (e: Exception) {
+                    // не страшно, если не удалось отозвать refresh-токен на сервере — главное,
+                    // что мы всё равно чистим его локально ниже
+                }
             }
-        }.stateIn(viewModelScope, SharingStarted.Companion.WhileSubscribed(), auth.currentUser == null)
-
-    override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
-
-    override suspend fun firebaseCreateAccount(name: String, email: String, password: String) =
-        try {
-            auth.createUserWithEmailAndPassword(email, password).await()
-            val user =
-                UserData(
-                    email = email,
-                    password = password,
-                    username = name,
-                    newTSI = 0,
-                    photoUrl = null,
-                    phone = null,
-                )
-            userRepo.createUser(user)
+            tokenStore.clear()
             Response.Success(true)
         } catch (e: Exception) {
             Response.Failure(e)
         }
 
-    override suspend fun firebaseSignIn(email: String, password: String) =
+    override suspend fun firebaseForgotPassword(email: String): Response<Boolean> =
         try {
-            auth.signInWithEmailAndPassword(email, password).await()
-            Response.Success(true)
-        } catch (e: Exception) {
-            Response.Failure(e)
-        }
-
-    override suspend fun firebaseGoogleAuth(idToken: String) =
-        try {
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            val authResult = auth.signInWithCredential(credential).await()
-            // Получаем данные пользователя из Google
-            val user = authResult.user
-            if (user != null) {
-                val userData =
-                    UserData(
-                        email = user.email ?: "",
-                        password = "",
-                        username = user.displayName ?: "Google User",
-                        newTSI = 0,
-                        photoUrl = user.photoUrl?.toString(),
-                        phone = user.phoneNumber,
-                    )
-                userRepo.createUser(userData)
+            httpClient.authorizedRequest<Unit>(tokenStore) {
+                method = HttpMethod.Post
+                url(ApiConfig.baseUrl + "auth/forgot-password")
+                contentType(ContentType.Application.Json)
+                setBody(ForgotPasswordRequestDto(email = email))
             }
-
             Response.Success(true)
         } catch (e: Exception) {
             Response.Failure(e)
         }
-
-    override suspend fun firebaseSignOut() =
-        try {
-            auth.signOut()
-            Response.Success(true)
-        } catch (e: Exception) {
-            Response.Failure(e)
-        }
-
-    override suspend fun firebaseForgotPassword(email: String): Response<Boolean> {
-        try {
-            auth.sendPasswordResetEmail(email).await()
-            return Response.Success(true)
-        } catch (e: Exception) {
-            return Response.Failure(e)
-        }
-    }
 
     override fun getGoogleSignInIntent(): Intent = googleSignInClient.signInIntent
 
-    override suspend fun handleGoogleSignInResult(result: ActivityResult): Response<Boolean> =
-        try {
+    // Блочное тело — внутри нужен bare `return` на случай отсутствия idToken, а это запрещено
+    // в функциях с expression body.
+    override suspend fun handleGoogleSignInResult(result: ActivityResult): Response<Boolean> {
+        return try {
             val account =
                 GoogleSignIn
                     .getSignedInAccountFromIntent(result.data)
-                    .getResult(ApiException::class.java)
+                    .getResult(GoogleApiException::class.java)
 
-            account.idToken?.let { token ->
-                val credential = GoogleAuthProvider.getCredential(token, null)
-                val authResult = auth.signInWithCredential(credential).await()
+            val idToken =
+                account.idToken
+                    ?: return Response.Failure(Exception("Google sign-in failed: no ID token"))
 
-                // Создаём запись в Firestore
-                val user = authResult.user
-                if (user != null) {
-                    val userData =
-                        UserData(
-                            email = user.email ?: "",
-                            password = "",
-                            username = user.displayName ?: "Google User",
-                            newTSI = 0,
-                            photoUrl = user.photoUrl?.toString(),
-                            phone = user.phoneNumber,
-                        )
-                    userRepo.createUser(userData)
-                }
-
-                Response.Success(true)
-            } ?: Response.Failure(Exception("Google sign-in failed: no ID token"))
+            firebaseGoogleAuth(idToken)
         } catch (e: Exception) {
             Response.Failure(e)
         }
+    }
 }

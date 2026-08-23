@@ -21,7 +21,5 @@ android {
 }
 
 dependencies {
-    // Logger пишет в Crashlytics.
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.google.firebase.crashlytics)
+    // Firebase Crashlytics убран — Logger теперь пишет только в logcat (см. Logger.kt).
 }

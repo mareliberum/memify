@@ -47,8 +47,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.coil)
     implementation(libs.coil.base)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)

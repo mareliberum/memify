@@ -49,9 +49,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-
     implementation("com.vk.id:vkid:2.5.1")
     implementation("com.vk.id:onetap-compose:2.5.1")
 

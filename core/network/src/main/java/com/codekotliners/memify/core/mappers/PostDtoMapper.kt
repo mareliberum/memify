@@ -4,12 +4,12 @@ import com.codekotliners.memify.core.models.Post
 import com.codekotliners.memify.core.models.User
 import com.codekotliners.memify.core.network.models.PostDto
 
-fun PostDto.toPost(user: User, isLiked: Boolean): Post =
+fun PostDto.toPost(user: User): Post =
     Post(
         id = id,
         imageUrl = imageUrl,
-        creatorId = creatorId,
-        liked = liked,
+        authorId = authorId,
+        likesCount = likesCount,
         templateId = templateId,
         height = height,
         width = width,
@@ -20,10 +20,11 @@ fun PostDto.toPost(user: User, isLiked: Boolean): Post =
 fun Post.toPostDto(): PostDto =
     PostDto(
         id = id,
+        authorId = authorId,
         imageUrl = imageUrl,
-        creatorId = creatorId,
-        liked = liked,
         templateId = templateId,
-        height = height,
         width = width,
+        height = height,
+        likesCount = likesCount,
+        isLiked = isLiked,
     )

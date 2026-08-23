@@ -34,6 +34,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:network"))
     implementation(project(":core:user"))
+    implementation(project(":core:prefs"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
     implementation(project(":feature:auth"))
@@ -53,9 +54,6 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.base)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
 
     implementation("com.vk.id:vkid:2.5.1")
 

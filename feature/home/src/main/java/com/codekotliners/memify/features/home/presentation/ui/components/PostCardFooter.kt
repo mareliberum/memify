@@ -25,6 +25,6 @@ fun PostCardFooter(
                 tint = if (post.isLiked) Color.Red else Color.Gray,
             )
         }
-        Text(text = post.liked.size.toString(), color = Color.Gray)
+        Text(text = post.likesCount.toString(), color = Color.Gray)
     }
 }

@@ -25,6 +25,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codekotliners.memify.features.auth.presentation.ui.AUTH_SUCCESS_EVENT
 import com.codekotliners.memify.features.templates.presentation.state.TabState
 import com.codekotliners.memify.features.templates.presentation.ui.components.ErrorTab
+import com.codekotliners.memify.features.templates.presentation.ui.components.LoadingTab
 import com.codekotliners.memify.features.templates.presentation.ui.components.NoContentTab
 import com.codekotliners.memify.features.templates.presentation.ui.components.TemplatesGrid
 import com.codekotliners.memify.features.templates.presentation.viewmodel.TemplatesFeedViewModel
@@ -85,7 +86,7 @@ fun TemplatesFeedScreen(
             when (val currentState = pageState.getCurrentTabState()) {
                 TabState.None -> {}
 
-                is TabState.Loading -> {}
+                is TabState.Loading -> LoadingTab()
 
                 is TabState.Error -> {
                     ErrorTab(errorType = currentState.type) { onLoginClicked() }

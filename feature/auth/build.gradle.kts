@@ -31,6 +31,8 @@ android {
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:common"))
+    implementation(project(":core:network"))
+    implementation(project(":core:prefs"))
     implementation(project(":core:user"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
@@ -46,9 +48,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
+    // Google Sign-In SDK — это НЕ Firebase, чистый play-services-auth, выдаёт ID-токен,
+    // который дальше идёт на свой бэк (POST /auth/google), см. AuthRepositoryImpl.
     implementation(libs.play.services.auth)
 
     implementation(libs.hilt.android)

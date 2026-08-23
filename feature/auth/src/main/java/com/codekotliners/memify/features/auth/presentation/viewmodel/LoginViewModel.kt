@@ -3,14 +3,13 @@ package com.codekotliners.memify.features.auth.presentation.viewmodel
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.common.Response
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import com.codekotliners.memify.features.auth.presentation.state.LoginEvent
 import com.codekotliners.memify.features.auth.presentation.state.LoginUiState
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.LoginErrorCode
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.PasswordErrorCode
-import com.google.firebase.FirebaseNetworkException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -86,7 +85,7 @@ class LoginViewModel @Inject constructor(
                 is Response.Failure<*> -> {
                     val loginErrorCode =
                         when (result.error) {
-                            is FirebaseNetworkException, is IOException -> R.string.auth_error_network
+                            is IOException -> R.string.auth_error_network
                             else -> R.string.login_error_general
                         }
                     _uiState.update {

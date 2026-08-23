@@ -108,7 +108,7 @@ fun HomeScreen(
 
                     is PostsFeedTabState.Content ->
                         PostsFeed(currentState.posts, navController) { post ->
-                            if (viewModel.getCurrentUser() == null) {
+                            if (!viewModel.isLoggedIn()) {
                                 navController.navigate(NavRoutes.Auth.route)
                             } else {
                                 viewModel.likeClick(post)

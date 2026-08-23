@@ -1,9 +1,10 @@
 package com.codekotliners.memify.core.logger
 
 import android.util.Log
-import com.google.firebase.BuildConfig
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 
+// Раньше писал ошибки в Firebase Crashlytics. Firebase убран из проекта — теперь просто
+// пишет в logcat. Если понадобится сторонний краш-репортинг, сюда можно подключить
+// что угодно (например, Yandex AppMetrica Crashes).
 object Logger {
     enum class Level {
         DEBUG,
@@ -13,7 +14,7 @@ object Logger {
     }
 
     fun initialize(isDebug: Boolean) {
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!isDebug)
+        // no-op: раньше тут включался/выключался сбор крашей в Firebase Crashlytics
     }
 
     fun log(
@@ -22,21 +23,11 @@ object Logger {
         message: String,
         exception: Throwable? = null,
     ) {
-        if (BuildConfig.DEBUG) {
-            when (level) {
-                Level.DEBUG -> Log.d(tag, message)
-                Level.INFO -> Log.i(tag, message)
-                Level.WARNING -> Log.w(tag, message)
-                Level.ERROR -> Log.e(tag, message, exception)
-            }
-        }
-
         when (level) {
-            Level.ERROR -> {
-                FirebaseCrashlytics.getInstance().log("$tag: $message")
-                exception?.let { FirebaseCrashlytics.getInstance().recordException(it) }
-            }
-            else -> FirebaseCrashlytics.getInstance().log("[$level] $tag: $message")
+            Level.DEBUG -> Log.d(tag, message)
+            Level.INFO -> Log.i(tag, message)
+            Level.WARNING -> Log.w(tag, message)
+            Level.ERROR -> Log.e(tag, message, exception)
         }
     }
 

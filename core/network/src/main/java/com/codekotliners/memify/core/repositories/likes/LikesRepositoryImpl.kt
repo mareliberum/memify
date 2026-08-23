@@ -1,78 +1,38 @@
 package com.codekotliners.memify.core.repositories.likes
 
-import android.util.Log
-import com.codekotliners.memify.core.data.constants.POSTS_COLLECTION_NAME
+import com.codekotliners.memify.core.network.api.ApiConfig
+import com.codekotliners.memify.core.network.api.authorizedRequest
 import com.codekotliners.memify.core.network.models.PostDto
-import com.codekotliners.memify.core.repositories.likes.LikesRepository
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.tasks.await
+import com.codekotliners.memify.core.network.models.ToggleLikeResponseDto
+import com.codekotliners.memify.core.prefs.TokenStore
+import io.ktor.client.HttpClient
+import io.ktor.client.request.url
+import io.ktor.http.HttpMethod
 import javax.inject.Inject
 
-class LikesRepositoryImpl @Inject constructor() : LikesRepository {
-    private val db = Firebase.firestore
-    private val postsCollection = db.collection(POSTS_COLLECTION_NAME)
-
+/**
+ * Раньше лайки были массивом userId прямо в документе поста в Firestore. Теперь на бэке
+ * это отдельная таблица post_likes, а PostDto уже приходит с готовыми likesCount/isLiked —
+ * поэтому isLiked/likesCount тут просто читают поля из PostDto.
+ */
+class LikesRepositoryImpl @Inject constructor(
+    private val httpClient: HttpClient,
+    private val tokenStore: TokenStore,
+) : LikesRepository {
     override suspend fun likeTap(postsDto: PostDto) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        val postRef = postsCollection.document(postsDto.id)
-
-        try {
-            db
-                .runTransaction { transaction ->
-                    transaction.update(
-                        postRef,
-                        "liked",
-                        if (userId !in postsDto.liked.distinct()) {
-                            FieldValue.arrayUnion(userId)
-                        } else {
-                            FieldValue.arrayRemove(userId)
-                        },
-                    )
-                }.await()
-        } catch (e: Exception) {
-            Log.e("LIKED", e.message.toString())
+        httpClient.authorizedRequest<ToggleLikeResponseDto>(tokenStore) {
+            method = HttpMethod.Post
+            url(ApiConfig.baseUrl + "posts/${postsDto.id}/toggle-like")
         }
     }
 
-    override suspend fun isLiked(postsDto: PostDto): Boolean {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        return postsDto.liked.contains(userId)
-    }
+    override suspend fun isLiked(postsDto: PostDto): Boolean = postsDto.isLiked
 
-    override suspend fun likesCount(postsDto: PostDto): Int = postsDto.liked.size
+    override suspend fun likesCount(postsDto: PostDto): Int = postsDto.likesCount
 
-    override suspend fun getLikedPosts(): List<PostDto> {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return emptyList()
-
-        return try {
-            val snapshot =
-                postsCollection
-                    .whereArrayContains("liked", userId)
-                    .get()
-                    .await()
-
-            snapshot.documents.mapNotNull { doc ->
-                try {
-                    PostDto(
-                        id = doc.id,
-                        imageUrl = doc.getString("imageUrl") ?: "",
-                        creatorId = doc.getString("creatorId") ?: "",
-                        liked = doc.get("liked") as? List<String> ?: emptyList(),
-                        templateId = doc.getString("templateId") ?: "",
-                        height = (doc.getLong("height") ?: 0L).toInt(),
-                        width = (doc.getLong("width") ?: 0L).toInt(),
-                    )
-                } catch (e: Exception) {
-                    Log.e("LIKED", "Error mapping post: ${e.message}")
-                    null
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("LIKED", "Error fetching liked posts: ${e.message}")
-            emptyList()
+    override suspend fun getLikedPosts(): List<PostDto> =
+        httpClient.authorizedRequest(tokenStore) {
+            method = HttpMethod.Get
+            url(ApiConfig.baseUrl + "posts/liked")
         }
-    }
 }

@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:network"))
     implementation(project(":core:user"))
+    implementation(project(":core:prefs"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
     implementation(project(":feature:auth"))
@@ -50,10 +51,6 @@ dependencies {
 
     implementation(libs.coil.compose)
     implementation(libs.coil.base)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

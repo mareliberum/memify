@@ -150,4 +150,14 @@
     <string name="saved">Сохраненные</string>
     <string name="Email">Почта</string>
     <string name="publishing_process">Публикация...</string>
+
+    <!--
+      Раньше этот ресурс генерировал плагин google-services из google-services.json
+      (Firebase). Firebase убран, поэтому теперь это обычная строка, которую нужно заполнить
+      вручную: Google Cloud Console -> APIs & Services -> Credentials -> OAuth 2.0 Client IDs ->
+      "Web client" (тип Web application, тот же, что использовался для Firebase — можно взять
+      готовый). Именно этот же Client ID должен быть указан в GOOGLE_OAUTH_CLIENT_ID на бэке
+      (см. backend/src/main/kotlin/Security.kt).
+    -->
+    <string name="default_web_client_id" translatable="false">REPLACE_WITH_YOUR_GOOGLE_OAUTH_WEB_CLIENT_ID</string>
 </resources>

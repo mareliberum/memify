@@ -4,25 +4,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codekotliners.memify.core.mappers.toPostDto
 import com.codekotliners.memify.core.models.Post
+import com.codekotliners.memify.core.network.api.ApiException
+import com.codekotliners.memify.core.prefs.TokenStore
 import com.codekotliners.memify.core.repositories.likes.LikesRepository
 import com.codekotliners.memify.features.home.domain.repository.PostsRepository
 import com.codekotliners.memify.features.home.presentation.state.ErrorType
 import com.codekotliners.memify.features.home.presentation.state.MainFeedScreenState
 import com.codekotliners.memify.features.home.presentation.state.MainFeedTab
 import com.codekotliners.memify.features.home.presentation.state.PostsFeedTabState
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestoreException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
     private val repository: PostsRepository,
     private val likesRepository: LikesRepository,
+    private val tokenStore: TokenStore,
 ) : ViewModel() {
     private val _screenState = MutableStateFlow(MainFeedScreenState(selectedTab = MainFeedTab.POPULAR))
     val screenState = _screenState.asStateFlow()
@@ -54,7 +56,9 @@ class HomeScreenViewModel @Inject constructor(
         loadDataForTab(tab)
     }
 
-    fun getCurrentUser() = FirebaseAuth.getInstance().currentUser
+    // Раньше брали текущего пользователя из FirebaseAuth напрямую. Теперь факт логина
+    // хранится локально в TokenStore (заполняется при логине/регистрации, см. AuthRepositoryImpl).
+    fun isLoggedIn(): Boolean = tokenStore.isLoggedIn()
 
     fun likeClick(card: Post) {
         viewModelScope.launch {
@@ -85,7 +89,7 @@ class HomeScreenViewModel @Inject constructor(
             } catch (e: Exception) {
                 val errorType =
                     when (e) {
-                        is FirebaseFirestoreException -> ErrorType.NETWORK
+                        is IOException, is ApiException -> ErrorType.NETWORK
                         else -> ErrorType.UNKNOWN
                     }
                 _screenState.update { it.updatedCurrentTab(PostsFeedTabState.Error(errorType)) }
@@ -96,8 +100,6 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     private fun updateLocalPost(postId: String) {
-        val userId = getCurrentUser()?.uid ?: return
-
         _screenState.update { currentState ->
             val newState = currentState.copy()
             val tabState = newState.getCurrentTabState()
@@ -106,18 +108,11 @@ class HomeScreenViewModel @Inject constructor(
                 val updatedPosts =
                     tabState.posts.map { post ->
                         if (post.id == postId) {
-                            val isLiked: Boolean
-                            val newLiked =
-                                post.liked.toMutableList().apply {
-                                    if (userId in this) {
-                                        remove(userId)
-                                        isLiked = false
-                                    } else {
-                                        add(userId)
-                                        isLiked = true
-                                    }
-                                }
-                            post.copy(liked = newLiked, isLiked = isLiked)
+                            val nowLiked = !post.isLiked
+                            post.copy(
+                                isLiked = nowLiked,
+                                likesCount = post.likesCount + if (nowLiked) 1 else -1,
+                            )
                         } else {
                             post
                         }

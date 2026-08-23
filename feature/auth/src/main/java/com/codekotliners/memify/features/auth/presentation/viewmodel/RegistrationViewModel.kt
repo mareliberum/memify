@@ -3,8 +3,9 @@ package com.codekotliners.memify.features.auth.presentation.viewmodel
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.common.Response
+import com.codekotliners.memify.core.network.api.ApiException
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.features.auth.domain.repository.AuthRepository
 import com.codekotliners.memify.features.auth.presentation.state.RegistrationEvent
 import com.codekotliners.memify.features.auth.presentation.state.RegistrationUiState
@@ -12,8 +13,6 @@ import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.Confirm
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.EmailErrorCode
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.NameErrorCode
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.PasswordErrorCode
-import com.google.firebase.FirebaseNetworkException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -149,9 +148,14 @@ class RegistrationViewModel @Inject constructor(
             when (result) {
                 is Response.Failure<*> -> {
                     val registrationErrorCode =
-                        when (result.error) {
-                            is FirebaseNetworkException, is IOException -> R.string.auth_error_network
-                            is FirebaseAuthUserCollisionException -> R.string.registration_error_email_already_used
+                        when (val error = result.error) {
+                            is IOException -> R.string.auth_error_network
+                            is ApiException ->
+                                if (error.statusCode == 409) {
+                                    R.string.registration_error_email_already_used
+                                } else {
+                                    R.string.registration_error_general
+                                }
                             else -> R.string.registration_error_general
                         }
                     _uiState.update {

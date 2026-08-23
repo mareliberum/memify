@@ -23,6 +23,9 @@ android {
 }
 
 dependencies {
+    // EncryptedSharedPreferences для TokenStore (свои JWT-токены вместо Firebase Auth).
+    implementation(libs.androidx.security.crypto)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 }

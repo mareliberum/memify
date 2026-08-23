@@ -25,7 +25,7 @@ import com.codekotliners.memify.core.navigation.entities.ImageType
 import com.codekotliners.memify.features.viewer.domain.repository.ImageRepository
 import com.codekotliners.memify.features.viewer.presentation.state.ErrorType
 import com.codekotliners.memify.features.viewer.presentation.state.ImageState
-import com.google.firebase.firestore.FirebaseFirestoreException
+import com.codekotliners.memify.core.network.api.ApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -133,7 +134,7 @@ class ImageViewerViewModel @Inject constructor(
             } catch (e: Exception) {
                 val message =
                     when (e) {
-                        is FirebaseFirestoreException -> ErrorType.NETWORK
+                        is IOException, is ApiException -> ErrorType.NETWORK
                         else -> ErrorType.UNKNOWN
                     }
                 _imageState.value = ImageState.Error(message)
