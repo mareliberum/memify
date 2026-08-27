@@ -1,24 +1,66 @@
 <resources>
-    <string name="password_change_success">Пароль успешно изменён</string>
-    <string name="passwords_not_match">Пароли не совпадают</string>
-    <string name="incorrect_current_password">Текущий пароль неверный</string>
-    <string name="password_too_short">Пароль слишком короткий (минимум 8 символов)</string>
-    <string name="password_no_uppercase">Добавьте хотя бы одну заглавную букву</string>
-    <string name="password_no_digit">Добавьте хотя бы одну цифру</string>
-    <string name="password_no_special_char">Добавьте хотя бы один специальный символ</string>
-    <string name="go_backBtn">go_back</string>
+    <string name="go_back">Назад</string>
     <string name="settings_title">Настройки</string>
-    <string name="name_changed">Имя успешно изменено</string>
-    <string name="user_name">Имя пользователя</string>
-    <string name="new_name">Новое имя</string>
-    <string name="save_button">Сохранить</string>
-    <string name="theme_title">Тема</string>
-    <string name="safety">Безопасность</string>
-    <string name="require_current_password">Старый пароль</string>
-    <string name="require_new_password">Новый пароль</string>
-    <string name="repeat_new_password">Повторите пароль</string>
-    <string name="account_control">Управление аккаунтом</string>
-    <string name="logout">Выйти из аккаунта</string>
-    <string name="link_vk">Аккаунт ВК</string>
+    <string name="settings_loading_subtitle">Загружаем данные аккаунта</string>
+    <string name="guest_settings_title">Гостевой режим</string>
+    <string name="guest_settings_subtitle">Выберите тему или войдите, чтобы управлять профилем</string>
+    <string name="account_settings_title">Мой аккаунт</string>
+    <string name="account_settings_subtitle">Профиль и приложение — в одном месте</string>
     <string name="login">Войти в аккаунт</string>
+
+    <string name="about_app_item_title">О приложении</string>
+    <string name="about_app_name_fallback">Memify</string>
+    <string name="about_app_item_description">Версия, возможности и информация о Memify</string>
+    <string name="about_app_title">О приложении</string>
+    <string name="about_app_tagline">Создавайте мемы, вдохновляйтесь и делитесь идеями</string>
+    <string name="about_app_description">Memify объединяет редактор, коллекцию шаблонов и публикации в одном приложении.</string>
+    <string name="about_app_version_badge">Версия %1$s</string>
+    <string name="about_app_information_title">Информация</string>
+    <string name="about_app_information_description">Данные установленной версии приложения</string>
+    <string name="about_app_version">Версия</string>
+    <string name="about_app_build_number">Номер сборки</string>
+    <string name="about_app_platform">Платформа</string>
+    <string name="about_app_platform_android">Android</string>
+    <string name="about_app_package_name">Идентификатор</string>
+    <string name="about_app_unknown_value">—</string>
+    <string name="about_app_features_title">Возможности</string>
+    <string name="about_app_features_description">Всё необходимое для создания и публикации мемов</string>
+    <string name="about_app_editor_title">Редактор мемов</string>
+    <string name="about_app_editor_description">Текст, изображения, рисование и гибкая настройка элементов</string>
+    <string name="about_app_templates_title">Коллекция шаблонов</string>
+    <string name="about_app_templates_description">Популярные и новые идеи для быстрого старта</string>
+    <string name="about_app_sharing_title">Публикации и профиль</string>
+    <string name="about_app_sharing_description">Сохраняйте работы, делитесь ими и собирайте коллекцию</string>
+
+    <string name="appearance_title">Внешний вид</string>
+    <string name="appearance_description">Выберите оформление, в котором комфортно создавать мемы</string>
+    <string name="theme_system">Системная</string>
+    <string name="theme_system_description">Следует настройке устройства</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_light_description">Всегда светлое оформление</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_dark_description">Комфортнее при слабом освещении</string>
+
+    <string name="profile_settings_title">Профиль</string>
+    <string name="profile_settings_description">Имя будет видно рядом с вашими публикациями</string>
+    <string name="display_name_label">Имя пользователя</string>
+    <string name="display_name_empty">Введите имя</string>
+    <string name="save_name">Сохранить имя</string>
+    <string name="vk_name_title">Имя из VK</string>
+    <string name="vk_name_description">Можно быстро подставить имя из профиля VK</string>
+
+    <string name="account_control_title">Аккаунт</string>
+    <string name="account_control_description">При выходе локальная сессия завершится на этом устройстве</string>
+    <string name="logout">Выйти из аккаунта</string>
+    <string name="sign_out_dialog_title">Выйти из аккаунта?</string>
+    <string name="sign_out_dialog_description">Черновики останутся на устройстве, но действия с аккаунтом потребуют нового входа.</string>
+    <string name="sign_out_confirm">Выйти</string>
+    <string name="cancel">Отмена</string>
+
+    <string name="account_load_failed">Не удалось обновить данные аккаунта</string>
+    <string name="name_updated">Имя обновлено</string>
+    <string name="name_update_failed">Не удалось сохранить имя</string>
+    <string name="signed_out">Вы вышли из аккаунта</string>
+    <string name="sign_out_failed">Не удалось выйти из аккаунта</string>
+    <string name="vk_name_unavailable">VK не вернул имя профиля</string>
 </resources>

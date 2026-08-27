@@ -3,16 +3,15 @@ package com.codekotliners.memify.features.profile.presentation.ui.components
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -36,12 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberAsyncImagePainter
+import com.codekotliners.memify.core.ui.components.AccountIdentityHeader
 import com.codekotliners.memify.features.profile.R
 import com.codekotliners.memify.features.profile.presentation.model.ProfileAccountUiModel
 import com.codekotliners.memify.features.profile.presentation.model.ProfileUiState
@@ -58,39 +54,20 @@ internal fun ProfileSummaryCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                ProfileAvatar(
+                ProfileIdentityHeader(
                     state = state,
                     onAvatarSelected = onAvatarSelected,
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = state.title(),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text =
-                        stringResource(
-                            when (state.account) {
-                                ProfileAccountUiModel.Loading -> R.string.profile_loading
-                                ProfileAccountUiModel.Guest -> R.string.guest_profile_subtitle
-                                is ProfileAccountUiModel.Authenticated -> R.string.logged_profile_subtitle
-                            },
-                        ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.64f),
-                    textAlign = TextAlign.Center,
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
@@ -133,7 +110,7 @@ internal fun ProfileSummaryCard(
 }
 
 @Composable
-private fun ProfileAvatar(
+private fun ProfileIdentityHeader(
     state: ProfileUiState,
     onAvatarSelected: (String) -> Unit,
 ) {
@@ -147,81 +124,73 @@ private fun ProfileAvatar(
         pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
     }
     val avatarClickable = state.isLoggedIn && !state.isAvatarUpdating
+    val title = state.title()
+    val subtitle =
+        stringResource(
+            when (state.account) {
+                ProfileAccountUiModel.Loading -> R.string.profile_loading
+                ProfileAccountUiModel.Guest -> R.string.guest_profile_subtitle
+                is ProfileAccountUiModel.Authenticated -> R.string.logged_profile_subtitle
+            },
+        )
 
-    Box(
-        modifier = Modifier.size(98.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), CircleShape)
-                    .padding(5.dp)
-                    .clip(CircleShape)
-                    .then(
-                        if (avatarClickable) {
-                            Modifier.clickable(onClick = selectImage)
-                        } else {
-                            Modifier
-                        },
-                    ).border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = CircleShape,
-                    ).background(MaterialTheme.colorScheme.background),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (state.isLoggedIn && state.avatarUrl != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(model = state.avatarUrl),
-                    contentDescription = state.title(),
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(46.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-
-        if (state.isLoggedIn) {
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
-                        .then(
-                            if (avatarClickable) {
-                                Modifier.clickable(onClick = selectImage)
-                            } else {
-                                Modifier
-                            },
-                        ),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.isAvatarUpdating) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp,
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(R.string.change_profile_photo),
-                        modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onPrimary,
+    AccountIdentityHeader(
+        title = title,
+        subtitle = subtitle,
+        avatarUrl = state.avatarUrl,
+        avatarContentDescription = title,
+        onAvatarClick = selectImage.takeIf { avatarClickable },
+        avatarBadge =
+            if (state.isLoggedIn) {
+                {
+                    ProfileAvatarBadge(
+                        isUpdating = state.isAvatarUpdating,
+                        isClickable = avatarClickable,
+                        onClick = selectImage,
                     )
                 }
-            }
+            } else {
+                null
+            },
+    )
+}
+
+@Composable
+private fun BoxScope.ProfileAvatarBadge(
+    isUpdating: Boolean,
+    isClickable: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .align(Alignment.BottomEnd)
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary)
+                .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                .then(
+                    if (isClickable) {
+                        Modifier.clickable(onClick = onClick)
+                    } else {
+                        Modifier
+                    },
+                ),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (isUpdating) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                color = MaterialTheme.colorScheme.onPrimary,
+                strokeWidth = 2.dp,
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = stringResource(R.string.change_profile_photo),
+                modifier = Modifier.size(16.dp),
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
         }
     }
 }

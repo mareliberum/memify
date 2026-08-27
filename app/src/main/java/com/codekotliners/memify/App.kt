@@ -68,7 +68,26 @@ fun App(
                         HomeScreen(navController)
                     }
                 }
-                composable(NavRoutes.Settings.route) { SettingsScreen(navController) }
+                composable(
+                    route = NavRoutes.Settings.route,
+                    arguments =
+                        listOf(
+                            navArgument(NavRoutes.SETTINGS_INITIAL_AUTHENTICATED) {
+                                type = NavType.BoolType
+                                defaultValue = false
+                            },
+                            navArgument(NavRoutes.SETTINGS_INITIAL_DISPLAY_NAME) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                            navArgument(NavRoutes.SETTINGS_INITIAL_AVATAR_URL) {
+                                type = NavType.StringType
+                                defaultValue = ""
+                            },
+                        ),
+                ) {
+                    SettingsScreen(navController)
+                }
                 composable(NavRoutes.AboutApp.route) {
                     AboutAppScreen(onBackClick = { navController.popBackStack() })
                 }
