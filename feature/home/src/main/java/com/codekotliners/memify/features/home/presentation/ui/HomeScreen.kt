@@ -1,169 +1,151 @@
 package com.codekotliners.memify.features.home.presentation.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.features.home.R
-import com.codekotliners.memify.core.models.Post
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
-import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
-import com.codekotliners.memify.features.home.presentation.state.PostsFeedTabState
+import com.codekotliners.memify.core.navigation.entities.ImageType
+import com.codekotliners.memify.core.navigation.entities.NavRoutes
+import com.codekotliners.memify.core.theme.MemifyTheme
+import com.codekotliners.memify.core.ui.components.AppScaffold
+import com.codekotliners.memify.features.home.R
+import com.codekotliners.memify.features.home.presentation.model.HomeAction
+import com.codekotliners.memify.features.home.presentation.model.HomeFeedUiModel
+import com.codekotliners.memify.features.home.presentation.model.HomeMessage
+import com.codekotliners.memify.features.home.presentation.model.HomeNavigation
+import com.codekotliners.memify.features.home.presentation.model.HomeUiState
 import com.codekotliners.memify.features.home.presentation.ui.components.EmptyFeed
 import com.codekotliners.memify.features.home.presentation.ui.components.ErrorScreen
-import com.codekotliners.memify.features.home.presentation.ui.components.PostCardFooter
-import com.codekotliners.memify.features.home.presentation.ui.components.PostCardHeader
-import com.codekotliners.memify.features.home.presentation.ui.components.PostCardImage
-import com.codekotliners.memify.features.home.presentation.viewModel.HomeScreenViewModel
-import com.codekotliners.memify.core.navigation.entities.ImageType
+import com.codekotliners.memify.features.home.presentation.ui.components.HomeFeed
+import com.codekotliners.memify.features.home.presentation.ui.components.HomeTopBar
+import com.codekotliners.memify.features.home.presentation.ui.components.LoadingFeed
+import com.codekotliners.memify.features.home.presentation.viewmodel.HomeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeScreenViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val loginResult =
-        currentBackStackEntry
-            ?.savedStateHandle
-            ?.get<Boolean>(AUTH_SUCCESS_EVENT)
+    val loginResult = currentBackStackEntry?.savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val messageText =
+        when (state.message) {
+            HomeMessage.FEED_REFRESH_FAILED -> stringResource(R.string.feed_refresh_failed)
+            HomeMessage.LIKE_UPDATE_FAILED -> stringResource(R.string.like_update_failed)
+            null -> null
+        }
 
     LaunchedEffect(loginResult) {
         if (loginResult == true) {
-            viewModel.refresh()
             currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
+            viewModel.onAction(HomeAction.Refresh)
         }
     }
 
-    val screenState by viewModel.screenState.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    LaunchedEffect(state.message, messageText) {
+        if (messageText != null) {
+            snackbarHostState.showSnackbar(messageText)
+            viewModel.onAction(HomeAction.MessageShown)
+        }
+    }
 
-    AppScaffold(navController) { innerPadding ->
-        Column(
+    LaunchedEffect(state.navigation) {
+        when (state.navigation) {
+            HomeNavigation.AUTH -> {
+                viewModel.onAction(HomeAction.NavigationHandled)
+                navController.navigate(NavRoutes.Auth.route)
+            }
+
+            null -> Unit
+        }
+    }
+
+    AppScaffold(
+        navController = navController,
+        modifier = Modifier.fillMaxSize(),
+        topBar = { HomeTopBar() },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { innerPadding ->
+        HomeContent(
+            state = state,
+            onAction = viewModel::onAction,
+            onPostClick = { postId ->
+                navController.navigate(
+                    NavRoutes.ImageViewer.createRoute(
+                        type = ImageType.POST,
+                        id = postId,
+                    ),
+                )
+            },
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(MaterialTheme.colorScheme.background),
-        ) {
-            CenterAlignedTopAppBar(
-                windowInsets = WindowInsets(0),
-                title = {
-                    Text(
-                        text = stringResource(R.string.memify),
-                        fontFamily = FontFamily(Font(R.font.ubunturegular)),
-                        fontStyle = FontStyle.Normal,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                    )
-                },
-                expandedHeight = 48.dp,
-            )
-
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = { viewModel.refresh() },
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                when (val currentState = screenState.getCurrentTabState()) {
-                    is PostsFeedTabState.None -> {}
-                    is PostsFeedTabState.Empty -> EmptyFeed()
-                    is PostsFeedTabState.Loading -> {}
-
-                    is PostsFeedTabState.Error ->
-                        ErrorScreen(
-                            errorType = currentState.type,
-                            onRetry = viewModel::refresh,
-                        )
-
-                    is PostsFeedTabState.Content ->
-                        PostsFeed(currentState.posts, navController) { post ->
-                            if (!viewModel.isLoggedIn()) {
-                                navController.navigate(NavRoutes.Auth.route)
-                            } else {
-                                viewModel.likeClick(post)
-                            }
-                        }
-                }
-            }
-        }
+                    .padding(innerPadding),
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun PostsFeed(
-    posts: List<Post>,
-    navController: NavController,
-    onLikeClick: (Post) -> Unit,
+private fun HomeContent(
+    state: HomeUiState,
+    onAction: (HomeAction) -> Unit,
+    onPostClick: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
-        modifier =
-            Modifier
-                .fillMaxSize(),
-        contentPadding = PaddingValues(0.dp),
+    PullToRefreshBox(
+        isRefreshing = state.isRefreshing,
+        onRefresh = { onAction(HomeAction.Refresh) },
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
     ) {
-        items(posts) { post ->
-            PostCard(post, onLikeClick, onImageClick = {
-                navController.navigate(
-                    NavRoutes.ImageViewer.createRoute(
-                        ImageType.POST,
-                        post.id,
-                    ),
+        when (val feed = state.feed) {
+            HomeFeedUiModel.Loading -> LoadingFeed()
+            HomeFeedUiModel.Empty -> EmptyFeed()
+            is HomeFeedUiModel.Error ->
+                ErrorScreen(
+                    errorType = feed.type,
+                    onRetry = { onAction(HomeAction.Refresh) },
                 )
-            })
+
+            is HomeFeedUiModel.Content ->
+                HomeFeed(
+                    posts = feed.posts,
+                    pendingLikePostIds = state.pendingLikePostIds,
+                    onLikeClick = { postId -> onAction(HomeAction.LikeClicked(postId)) },
+                    onPostClick = onPostClick,
+                )
         }
     }
 }
 
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PostCard(
-    card: Post,
-    onLikeClick: (Post) -> Unit,
-    onImageClick: () -> Unit,
-) {
-    Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(2.dp),
-        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
-    ) {
-        Column(Modifier.padding(horizontal = 8.dp)) {
-            PostCardHeader(card)
-            PostCardImage(card, onImageClick)
-            PostCardFooter(card, onLikeClick)
-        }
+private fun EmptyHomePreview() {
+    MemifyTheme {
+        HomeContent(
+            state = HomeUiState(feed = HomeFeedUiModel.Empty),
+            onAction = {},
+            onPostClick = {},
+        )
     }
 }

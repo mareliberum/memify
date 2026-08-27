@@ -19,17 +19,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.codekotliners.memify.features.home.R
-import com.codekotliners.memify.features.home.presentation.state.ErrorType
+import com.codekotliners.memify.features.home.presentation.model.HomeErrorUiModel
 
 @Composable
-fun ErrorScreen(
-    errorType: ErrorType,
+internal fun ErrorScreen(
+    errorType: HomeErrorUiModel,
     onRetry: () -> Unit,
 ) {
+    val title =
+        when (errorType) {
+            HomeErrorUiModel.NETWORK -> stringResource(R.string.network_error_title)
+            HomeErrorUiModel.UNKNOWN -> stringResource(R.string.unknown_error_title)
+        }
+    val description =
+        when (errorType) {
+            HomeErrorUiModel.NETWORK -> stringResource(R.string.network_error_message)
+            HomeErrorUiModel.UNKNOWN -> stringResource(R.string.unknown_error_message)
+        }
+
     FeedStateCard(
         illustrationResId = R.drawable.round_error_outline_24,
-        title = stringResource(errorType.titleResId),
-        description = stringResource(errorType.userMessageResId),
+        title = title,
+        description = description,
         action = {
             Button(
                 onClick = onRetry,

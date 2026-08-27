@@ -5,7 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.codekotliners.memify.features.home.R
 
 @Composable
-fun EmptyFeed() {
+internal fun EmptyFeed() {
     FeedStateCard(
         illustrationResId = R.drawable.round_image_24,
         title = stringResource(R.string.empty_feed_title),
