@@ -17,10 +17,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.codekotliners.memify.core.logger.Logger
-import com.codekotliners.memify.core.ui.LocalNavAnimatedVisibilityScope
-import com.codekotliners.memify.core.ui.LocalSharedTransitionScope
+import com.codekotliners.memify.core.navigation.entities.ImageType
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
+import com.codekotliners.memify.core.ui.LocalNavAnimatedVisibilityScope
+import com.codekotliners.memify.core.ui.LocalSharedTransitionScope
 import com.codekotliners.memify.features.auth.presentation.ui.AuthScreen
 import com.codekotliners.memify.features.auth.presentation.ui.LoginScreen
 import com.codekotliners.memify.features.auth.presentation.ui.RegistrationScreen
@@ -28,10 +29,8 @@ import com.codekotliners.memify.features.auth.presentation.viewmodel.Authenticat
 import com.codekotliners.memify.features.create.presentation.ui.CreateScreen
 import com.codekotliners.memify.features.home.presentation.ui.HomeScreen
 import com.codekotliners.memify.features.profile.presentation.ui.ProfileScreen
-import com.codekotliners.memify.features.settings.presentation.ui.SettingsLoggedScreen
-import com.codekotliners.memify.features.settings.presentation.ui.SettingsUnLoggedScreen
-import com.codekotliners.memify.features.settings.presentation.viewmodel.SettingsScreenViewModel
-import com.codekotliners.memify.core.navigation.entities.ImageType
+import com.codekotliners.memify.features.settings.presentation.ui.AboutAppScreen
+import com.codekotliners.memify.features.settings.presentation.ui.SettingsScreen
 import com.codekotliners.memify.features.viewer.presentation.ui.ImageViewerScreen
 import java.util.Base64
 
@@ -41,7 +40,6 @@ import java.util.Base64
 fun App(
     destinationScreen: String?,
     authViewModel: AuthenticationViewModel = hiltViewModel(),
-    settingsViewModel: SettingsScreenViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
 
@@ -70,12 +68,10 @@ fun App(
                         HomeScreen(navController)
                     }
                 }
-                composable(
-                    NavRoutes.SettingsUnlogged.route,
-                ) { SettingsUnLoggedScreen(navController, settingsViewModel) }
-                composable(
-                    NavRoutes.SettingsLogged.route,
-                ) { SettingsLoggedScreen(navController, settingsViewModel) }
+                composable(NavRoutes.Settings.route) { SettingsScreen(navController) }
+                composable(NavRoutes.AboutApp.route) {
+                    AboutAppScreen(onBackClick = { navController.popBackStack() })
+                }
                 composable(
                     route = "Create?${NavRoutes.IMAGE_URL}={${NavRoutes.IMAGE_URL}}",
                     arguments =
