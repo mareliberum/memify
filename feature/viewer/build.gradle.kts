@@ -9,12 +9,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:network"))
-    implementation(project(":core:common"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:database"))
-    implementation(project(":core:user"))
+    implementation(projects.core.network)
+    implementation(projects.core.common)
+    implementation(projects.core.navigation)
+    implementation(projects.core.ui)
+    implementation(projects.core.database)
+    implementation(projects.core.user)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)

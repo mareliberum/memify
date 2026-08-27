@@ -9,9 +9,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:prefs"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.prefs)
 
     api(libs.ktor.client.core) // HttpClient и io.ktor.client.request/*.http.* нужны модулям, которые зависят от core:network (core:user, feature:auth, feature:templates и т.д.), поэтому api, а не implementation
     implementation(libs.ktor.client.okhttp)

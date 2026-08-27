@@ -8,8 +8,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

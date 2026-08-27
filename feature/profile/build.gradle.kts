@@ -9,13 +9,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:common"))
-    implementation(project(":core:database"))
-    implementation(project(":core:network"))
-    implementation(project(":core:user"))
-    implementation(project(":core:prefs"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:ui"))
+    implementation(projects.core.common)
+    implementation(projects.core.database)
+    implementation(projects.core.network)
+    implementation(projects.core.user)
+    implementation(projects.core.prefs)
+    implementation(projects.core.navigation)
+    implementation(projects.core.ui)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
@@ -34,5 +34,5 @@ dependencies {
 
     implementation(libs.ktor.client.core)
 
-    implementation("com.vk.id:vkid:2.5.1")
+    implementation(libs.vkid.core)
 }

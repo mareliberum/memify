@@ -9,10 +9,10 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:navigation"))
-    implementation(project(":core:ui"))
-    implementation(project(":feature:templates"))
-    implementation(project(":feature:viewer"))
+    implementation(projects.core.navigation)
+    implementation(projects.core.ui)
+    implementation(projects.feature.templates)
+    implementation(projects.feature.viewer)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)

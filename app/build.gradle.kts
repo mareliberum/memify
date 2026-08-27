@@ -44,26 +44,26 @@ ktlint {
 
 dependencies {
     // Core modules
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:database"))
-    implementation(project(":core:network"))
-    implementation(project(":core:prefs"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:user"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.database)
+    implementation(projects.core.network)
+    implementation(projects.core.prefs)
+    implementation(projects.core.navigation)
+    implementation(projects.core.ui)
+    implementation(projects.core.user)
 
     // Feature modules
-    implementation(project(":feature:confirmation"))
-    implementation(project(":feature:passwordrecovery"))
-    implementation(project(":feature:passwordupdate"))
-    implementation(project(":feature:viewer"))
-    implementation(project(":feature:auth"))
-    implementation(project(":feature:templates"))
-    implementation(project(":feature:settings"))
-    implementation(project(":feature:profile"))
-    implementation(project(":feature:create"))
-    implementation(project(":feature:home"))
+    implementation(projects.feature.confirmation)
+    implementation(projects.feature.passwordrecovery)
+    implementation(projects.feature.passwordupdate)
+    implementation(projects.feature.viewer)
+    implementation(projects.feature.auth)
+    implementation(projects.feature.templates)
+    implementation(projects.feature.settings)
+    implementation(projects.feature.profile)
+    implementation(projects.feature.create)
+    implementation(projects.feature.home)
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)
@@ -107,12 +107,12 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
 
     // VKID
-    implementation("com.vk.id:vkid:2.5.1")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.vk.id:onetap-compose:2.5.1")
-    implementation("com.vk.id:vk-sdk-support:2.5.1")
-    implementation("com.vk:android-sdk-core:4.1.0")
-    implementation("com.vk:android-sdk-api:4.1.0")
+    implementation(libs.vkid.core)
+    implementation(libs.okhttp)
+    implementation(libs.vkid.onetap.compose)
+    implementation(libs.vkid.sdk.support)
+    implementation(libs.vk.android.sdk.core)
+    implementation(libs.vk.android.sdk.api)
 }
 
 vkompose {

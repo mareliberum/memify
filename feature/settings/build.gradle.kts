@@ -9,13 +9,13 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:user"))
-    implementation(project(":core:prefs"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:ui"))
-    implementation(project(":feature:auth"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.user)
+    implementation(projects.core.prefs)
+    implementation(projects.core.navigation)
+    implementation(projects.core.ui)
+    implementation(projects.feature.auth)
 
     implementation(libs.androidx.core.ktx)
 
@@ -29,6 +29,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    implementation("com.vk.id:vkid:2.5.1")
-    implementation("com.vk.id:onetap-compose:2.5.1")
+    implementation(libs.vkid.core)
+    implementation(libs.vkid.onetap.compose)
 }

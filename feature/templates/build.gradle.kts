@@ -9,12 +9,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:network"))
-    implementation(project(":core:prefs"))
-    implementation(project(":core:ui"))
-    implementation(project(":feature:auth"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.network)
+    implementation(projects.core.prefs)
+    implementation(projects.core.ui)
+    implementation(projects.feature.auth)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
@@ -29,7 +29,7 @@ dependencies {
     implementation(libs.coil.base)
 
     // VK SDK — не Firebase, отдельная интеграция (см. пояснение в чате про ВК), не трогаем.
-    implementation("com.vk:android-sdk-core:4.1.0")
-    implementation("com.vk:android-sdk-api:4.1.0")
-    implementation("com.vk.id:vk-sdk-support:2.5.1")
+    implementation(libs.vk.android.sdk.core)
+    implementation(libs.vk.android.sdk.api)
+    implementation(libs.vkid.sdk.support)
 }
