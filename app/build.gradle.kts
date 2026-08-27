@@ -1,20 +1,16 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
-    id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
-    id("com.vk.vkompose") version "0.6.2"
+    id("memify.android.application")
+    id("memify.android.compose")
+    id("memify.android.hilt")
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+    id("com.vk.vkompose") version "0.8.0"
     id("vkid.manifest.placeholders")
 }
 android {
     namespace = "com.codekotliners.memify"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.codekotliners.memify"
-        minSdk = 25
-        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -33,29 +29,17 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
-    }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes.add("/META-INF/AL2.0")
+            excludes.add("/META-INF/LGPL2.1")
         }
     }
-    ktlint {
-        debug = true
-        verbose = true
-    }
+}
+
+ktlint {
+    debug = true
+    verbose = true
 }
 
 dependencies {
@@ -109,10 +93,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -128,7 +108,6 @@ dependencies {
 
     // VKID
     implementation("com.vk.id:vkid:2.5.1")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.vk.id:onetap-compose:2.5.1")
     implementation("com.vk.id:vk-sdk-support:2.5.1")
