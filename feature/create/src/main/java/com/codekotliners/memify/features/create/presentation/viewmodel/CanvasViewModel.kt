@@ -267,7 +267,12 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun transformText(elementId: Long, positionDelta: Offset, zoom: Float) {
+    fun transformText(
+        elementId: Long,
+        positionDelta: Offset,
+        zoom: Float,
+        rotationDelta: Float,
+    ) {
         val index = canvasElements.indexOfFirst { it.id == elementId }
         if (index < 0) return
         val existing = canvasElements[index] as? TextElement ?: return
@@ -276,6 +281,7 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
             existing.copy(
                 position = existing.position + positionDelta,
                 size = newSize,
+                rotationDegrees = normalizeRotation(existing.rotationDegrees + rotationDelta),
             )
         if (selectedElementId == elementId) {
             currentTextSize.floatValue = newSize
@@ -291,6 +297,16 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
             existing.copy(
                 position = existing.position + positionDelta,
                 scale = newScale,
+            )
+    }
+
+    fun rotateText(elementId: Long, rotationDelta: Float) {
+        val index = canvasElements.indexOfFirst { it.id == elementId }
+        if (index < 0) return
+        val existing = canvasElements[index] as? TextElement ?: return
+        canvasElements[index] =
+            existing.copy(
+                rotationDegrees = normalizeRotation(existing.rotationDegrees + rotationDelta),
             )
     }
 
@@ -350,5 +366,9 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         private const val DUPLICATE_OFFSET_PX = 28f
         private const val MIN_DRAWING_SCALE = 0.2f
         private const val MAX_DRAWING_SCALE = 6f
+        private const val FULL_ROTATION_DEGREES = 360f
+
+        private fun normalizeRotation(rotationDegrees: Float): Float =
+            ((rotationDegrees % FULL_ROTATION_DEGREES) + FULL_ROTATION_DEGREES) % FULL_ROTATION_DEGREES
     }
 }

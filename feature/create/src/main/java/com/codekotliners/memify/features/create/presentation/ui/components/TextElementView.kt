@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.codekotliners.memify.features.create.domain.TextElement
@@ -28,6 +30,7 @@ private const val OUTLINE_LUMINANCE_THRESHOLD = 0.5f
 fun TextElementView(
     element: TextElement,
     viewModel: CanvasViewModel,
+    onElementSizeChanged: (IntSize) -> Unit,
 ) {
     val isSelected = viewModel.selectedElementId == element.id
 
@@ -37,7 +40,9 @@ fun TextElementView(
                 .graphicsLayer(
                     translationX = element.position.x,
                     translationY = element.position.y,
-                ).pointerInput(element.id) {
+                    rotationZ = element.rotationDegrees,
+                ).onSizeChanged(onElementSizeChanged)
+                .pointerInput(element.id) {
                     detectTapGestures(
                         onTap = { viewModel.selectElement(element) },
                         onDoubleTap = {
@@ -46,7 +51,7 @@ fun TextElementView(
                         },
                     )
                 }.pointerInput(element.id) {
-                    detectTransformGestures { _, pan, zoom, _ ->
+                    detectTransformGestures { _, pan, zoom, rotation ->
                         if (viewModel.selectedElementId != element.id) {
                             viewModel.selectElement(element)
                         }
@@ -54,6 +59,7 @@ fun TextElementView(
                             elementId = element.id,
                             positionDelta = pan,
                             zoom = zoom,
+                            rotationDelta = rotation,
                         )
                     }
                 }.padding(6.dp),

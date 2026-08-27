@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -19,6 +21,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.codekotliners.memify.features.create.domain.ColoredLine
 import com.codekotliners.memify.features.create.domain.TextElement
@@ -29,6 +32,7 @@ fun EditingCanvasElements(viewModel: CanvasViewModel) {
     val currentLine by rememberUpdatedState(viewModel.currentLine)
     val currentLineColor by rememberUpdatedState(viewModel.currentLineColor.value)
     val currentLineWidth by rememberUpdatedState(viewModel.currentLineWidth.floatValue)
+    val textElementSizes = remember { mutableStateMapOf<Long, IntSize>() }
 
     Box(
         modifier =
@@ -70,8 +74,23 @@ fun EditingCanvasElements(viewModel: CanvasViewModel) {
             key(element.id) {
                 when (element) {
                     is ColoredLine -> DrawingElementView(element = element, viewModel = viewModel)
-                    is TextElement -> TextElementView(element = element, viewModel = viewModel)
+                    is TextElement ->
+                        TextElementView(
+                            element = element,
+                            viewModel = viewModel,
+                            onElementSizeChanged = { size -> textElementSizes[element.id] = size },
+                        )
                 }
+            }
+        }
+
+        viewModel.selectedTextElement?.let { element ->
+            textElementSizes[element.id]?.let { elementSize ->
+                TextRotationHandle(
+                    element = element,
+                    elementSize = elementSize,
+                    viewModel = viewModel,
+                )
             }
         }
     }

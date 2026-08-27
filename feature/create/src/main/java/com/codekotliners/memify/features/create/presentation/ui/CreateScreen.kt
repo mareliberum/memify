@@ -211,6 +211,7 @@ private fun CreateScreenBottomSheet(
                 onMenuClick = {
                     coroutineScope.launch {
                         scale = 1f
+                        viewModel.deselectElement()
                         showImageViewer.value = true
                         delay(350)
                         val bitmapCompose = graphicsLayer.toImageBitmap()
