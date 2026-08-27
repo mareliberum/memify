@@ -32,12 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
-import com.codekotliners.memify.core.navigation.PROFILE_REFRESH_EVENT
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
-import com.codekotliners.memify.core.navigation.navigateToSettings
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.features.profile.R
@@ -58,16 +52,14 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
-    navController: NavController,
+    refreshRequested: Boolean,
+    onRefreshHandled: () -> Unit,
+    onSettingsClick: (isAuthenticated: Boolean, displayName: String, avatarUrl: String?) -> Unit,
+    onLoginClick: () -> Unit,
+    bottomBar: @Composable () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val loginResult = currentBackStackEntry?.savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
-    val profileRefreshRequested =
-        currentBackStackEntry
-            ?.savedStateHandle
-            ?.get<Boolean>(PROFILE_REFRESH_EVENT)
     val snackbarHostState = remember { SnackbarHostState() }
     val savedScrollState = rememberLazyStaggeredGridState()
     val likedScrollState = rememberLazyStaggeredGridState()
@@ -88,10 +80,9 @@ fun ProfileScreen(
             null -> null
         }
 
-    LaunchedEffect(loginResult, profileRefreshRequested) {
-        if (loginResult == true || profileRefreshRequested == true) {
-            currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
-            currentBackStackEntry.savedStateHandle.remove<Boolean>(PROFILE_REFRESH_EVENT)
+    LaunchedEffect(refreshRequested) {
+        if (refreshRequested) {
+            onRefreshHandled()
             viewModel.onAction(ProfileAction.Refresh)
         }
     }
@@ -104,20 +95,20 @@ fun ProfileScreen(
     }
 
     AppScaffold(
-        navController = navController,
         modifier = Modifier.fillMaxSize(),
         topBar = {
             ProfileTopBar(
                 enabled = state.account !is ProfileAccountUiModel.Loading,
                 onSettingsClick = {
-                    navController.navigateToSettings(
-                        isAuthenticated = state.isLoggedIn,
-                        displayName = state.displayName,
-                        avatarUrl = state.avatarUrl,
+                    onSettingsClick(
+                        state.isLoggedIn,
+                        state.displayName,
+                        state.avatarUrl,
                     )
                 },
             )
         },
+        bottomBar = bottomBar,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             ProfileFloatingActionButton(
@@ -135,7 +126,7 @@ fun ProfileScreen(
             savedScrollState = savedScrollState,
             likedScrollState = likedScrollState,
             onAction = viewModel::onAction,
-            onLoginClick = { navController.navigate(NavRoutes.Auth.route) },
+            onLoginClick = onLoginClick,
             modifier =
                 Modifier
                     .fillMaxSize()

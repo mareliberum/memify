@@ -14,7 +14,6 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.user)
     implementation(projects.core.prefs)
-    implementation(projects.core.navigation)
     implementation(projects.core.ui)
 
     implementation(platform(libs.androidx.compose.bom))
@@ -22,7 +21,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
 

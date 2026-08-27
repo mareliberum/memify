@@ -1,6 +1,7 @@
 plugins {
     id("memify.android.library")
     id("memify.android.compose")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -12,4 +13,5 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
 }

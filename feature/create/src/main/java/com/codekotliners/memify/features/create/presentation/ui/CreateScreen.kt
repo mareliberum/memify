@@ -69,13 +69,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.codekotliners.memify.core.navigation.HOME_REFRESH_EVENT
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
-import com.codekotliners.memify.core.navigation.navigateToTopLevelDestination
 import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.core.ui.components.CenteredCircularProgressIndicator
 import com.codekotliners.memify.features.create.R
@@ -99,17 +95,19 @@ private const val DEFAULT_IMAGE_URL = "https://i.ytimg.com/vi/E-EtUFH7Ezs/maxres
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen(
-    navController: NavController,
     imageUrl: String?,
+    authChanged: Boolean,
+    onAuthChangedHandled: () -> Unit,
+    onNavigateHome: () -> Unit,
     onLogin: () -> Unit,
+    onImagePublished: () -> Unit,
+    bottomBar: @Composable () -> Unit,
     viewModel: CanvasViewModel = hiltViewModel(),
     viewModelViewer: ImageViewerViewModel = hiltViewModel(),
 ) {
     val isPublishing by viewModelViewer.isPublishing.collectAsState()
 
-    BackHandler {
-        navController.navigateToTopLevelDestination(NavRoutes.Home.route)
-    }
+    BackHandler(onBack = onNavigateHome)
 
     val galleryLauncher =
         rememberLauncherForActivityResult(
@@ -125,9 +123,7 @@ fun CreateScreen(
     }
     LaunchedEffect(viewModelViewer) {
         viewModelViewer.imagePublishedEvent.collect {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set(HOME_REFRESH_EVENT, true)
+            onImagePublished()
         }
     }
     LaunchedEffect(imageUrl) {
@@ -146,7 +142,7 @@ fun CreateScreen(
         )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
-    AppScaffold(navController = navController) { padding ->
+    AppScaffold(bottomBar = bottomBar) { padding ->
         Box(
             modifier =
                 Modifier
@@ -154,10 +150,11 @@ fun CreateScreen(
                     .padding(padding),
         ) {
             CreateScreenBottomSheet(
-                navController,
                 isPublishing,
                 scaffoldState,
                 bottomSheetState,
+                authChanged,
+                onAuthChangedHandled,
                 onLogin,
                 viewModel,
                 viewModelViewer,
@@ -197,10 +194,11 @@ private fun PublishingLoadCircle(isPublishing: Boolean) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CreateScreenBottomSheet(
-    navController: NavController,
     isPublishing: Boolean,
     scaffoldState: BottomSheetScaffoldState,
     bottomSheetState: SheetState,
+    authChanged: Boolean,
+    onAuthChangedHandled: () -> Unit,
     onLogin: () -> Unit,
     viewModel: CanvasViewModel,
     viewModelViewer: ImageViewerViewModel,
@@ -244,7 +242,8 @@ private fun CreateScreenBottomSheet(
         sheetDragHandle = { BottomSheetHandle(bottomSheetState) },
         sheetContent = {
             TemplatesFeedScreen(
-                navController = navController,
+                authChanged = authChanged,
+                onAuthChangedHandled = onAuthChangedHandled,
                 onLoginClicked = { onLogin() },
                 onTemplateSelected = { url ->
                     viewModel.imageUrl = url

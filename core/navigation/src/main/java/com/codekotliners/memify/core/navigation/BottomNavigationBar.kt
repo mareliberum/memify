@@ -9,18 +9,18 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.core.navigation.entities.NavBarItems
+import androidx.navigation.NavDestination
+import com.codekotliners.memify.core.navigation.entities.TopLevelDestination
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavController,
+    currentDestination: NavDestination?,
+    onDestinationSelected: (TopLevelDestination) -> Unit,
 ) {
     NavigationBar(
         modifier =
@@ -30,27 +30,19 @@ fun BottomNavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
-        val backStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = backStackEntry?.destination?.route?.substringBefore("?")
-
-        NavBarItems.BarItems.forEach { navItem ->
-            val selected =
-                navItem.activeRoutes.any { route ->
-                    currentRoute == route.substringBefore("?")
-                }
+        TopLevelDestination.entries.forEach { destination ->
+            val selected = currentDestination?.let(destination::isSelected) == true
             NavigationBarItem(
                 modifier = Modifier.weight(1f),
                 selected = selected,
-                onClick = {
-                    navController.navigateToTopLevelDestination(navItem.route)
-                },
+                onClick = { onDestinationSelected(destination) },
                 icon = {
                     Icon(
                         painter =
                             painterResource(
-                                if (selected) navItem.iconPressed else navItem.iconNotPressed,
+                                if (selected) destination.selectedIconResId else destination.iconResId,
                             ),
-                        contentDescription = navItem.title,
+                        contentDescription = stringResource(destination.labelResId),
                         modifier = Modifier.size(if (selected) 28.dp else 24.dp),
                     )
                 },

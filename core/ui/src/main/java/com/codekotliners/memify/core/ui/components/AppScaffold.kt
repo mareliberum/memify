@@ -10,14 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.codekotliners.memify.core.navigation.BottomNavigationBar
 
 @Composable
 fun AppScaffold(
-    navController: NavController,
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
+    bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
@@ -33,9 +31,7 @@ fun AppScaffold(
         snackbarHost = snackbarHost,
         topBar = topBar,
         contentWindowInsets = WindowInsets(0.dp),
-        bottomBar = {
-            BottomNavigationBar(navController = navController)
-        },
+        bottomBar = bottomBar,
     ) { innerPadding ->
         content(innerPadding)
     }

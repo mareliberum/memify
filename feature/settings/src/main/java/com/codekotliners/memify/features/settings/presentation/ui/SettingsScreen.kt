@@ -22,11 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
-import com.codekotliners.memify.core.navigation.PROFILE_REFRESH_EVENT
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.features.settings.R
@@ -47,18 +42,22 @@ import com.codekotliners.memify.features.settings.presentation.viewmodel.Setting
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
+    authChanged: Boolean,
+    onAuthChangedHandled: () -> Unit,
+    onNavigateToAuth: () -> Unit,
+    onAccountChanged: () -> Unit,
+    onBackClick: () -> Unit,
+    onAboutAppClick: () -> Unit,
+    bottomBar: @Composable () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val loginResult = currentBackStackEntry?.savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
     val snackbarHostState = remember { SnackbarHostState() }
     val messageText = state.message?.text()
 
-    LaunchedEffect(loginResult) {
-        if (loginResult == true) {
-            currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
+    LaunchedEffect(authChanged) {
+        if (authChanged) {
+            onAuthChangedHandled()
             viewModel.onAction(SettingsAction.AuthChanged)
         }
     }
@@ -72,12 +71,8 @@ fun SettingsScreen(
 
     LaunchedEffect(state.navigation) {
         when (state.navigation) {
-            SettingsNavigation.OpenLogin -> navController.navigate(NavRoutes.Auth.route)
-            SettingsNavigation.AccountChanged -> {
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.set(PROFILE_REFRESH_EVENT, true)
-            }
+            SettingsNavigation.OpenLogin -> onNavigateToAuth()
+            SettingsNavigation.AccountChanged -> onAccountChanged()
 
             null -> return@LaunchedEffect
         }
@@ -92,20 +87,20 @@ fun SettingsScreen(
     }
 
     AppScaffold(
-        navController = navController,
         modifier = Modifier.fillMaxSize(),
         topBar = {
             SettingsTopBar(
                 title = stringResource(R.string.settings_title),
-                onBackClick = { navController.popBackStack() },
+                onBackClick = onBackClick,
             )
         },
+        bottomBar = bottomBar,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         SettingsContent(
             state = state,
             onAction = viewModel::onAction,
-            onAboutAppClick = { navController.navigate(NavRoutes.AboutApp.route) },
+            onAboutAppClick = onAboutAppClick,
             modifier =
                 Modifier
                     .fillMaxSize()

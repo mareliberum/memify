@@ -18,12 +18,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
-import com.codekotliners.memify.core.navigation.HOME_REFRESH_EVENT
-import com.codekotliners.memify.core.navigation.entities.ImageType
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.features.home.R
@@ -41,14 +35,14 @@ import com.codekotliners.memify.features.home.presentation.viewmodel.HomeViewMod
 
 @Composable
 fun HomeScreen(
-    navController: NavController,
+    refreshRequested: Boolean,
+    onRefreshHandled: () -> Unit,
+    onNavigateToAuth: () -> Unit,
+    onPostClick: (String) -> Unit,
+    bottomBar: @Composable () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val savedStateHandle = currentBackStackEntry?.savedStateHandle
-    val loginResult = savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
-    val homeRefreshRequested = savedStateHandle?.get<Boolean>(HOME_REFRESH_EVENT)
     val snackbarHostState = remember { SnackbarHostState() }
     val messageText =
         when (state.message) {
@@ -57,10 +51,9 @@ fun HomeScreen(
             null -> null
         }
 
-    LaunchedEffect(loginResult, homeRefreshRequested) {
-        if (loginResult == true || homeRefreshRequested == true) {
-            savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
-            savedStateHandle.remove<Boolean>(HOME_REFRESH_EVENT)
+    LaunchedEffect(refreshRequested) {
+        if (refreshRequested) {
+            onRefreshHandled()
             viewModel.onAction(HomeAction.Refresh)
         }
     }
@@ -76,7 +69,7 @@ fun HomeScreen(
         when (state.navigation) {
             HomeNavigation.Auth -> {
                 viewModel.onAction(HomeAction.NavigationHandled)
-                navController.navigate(NavRoutes.Auth.route)
+                onNavigateToAuth()
             }
 
             null -> Unit
@@ -84,22 +77,15 @@ fun HomeScreen(
     }
 
     AppScaffold(
-        navController = navController,
         modifier = Modifier.fillMaxSize(),
         topBar = { HomeTopBar() },
+        bottomBar = bottomBar,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         HomeContent(
             state = state,
             onAction = viewModel::onAction,
-            onPostClick = { postId ->
-                navController.navigate(
-                    NavRoutes.ImageViewer.createRoute(
-                        type = ImageType.POST,
-                        id = postId,
-                    ),
-                )
-            },
+            onPostClick = onPostClick,
             modifier =
                 Modifier
                     .fillMaxSize()

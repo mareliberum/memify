@@ -1,11 +1,12 @@
 package com.codekotliners.memify.core.navigation
 
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.codekotliners.memify.core.navigation.entities.AppRoute
+import com.codekotliners.memify.core.navigation.entities.TopLevelDestination
 
-fun NavController.navigateToTopLevelDestination(route: String) {
-    navigate(route) {
-        popUpTo(graph.findStartDestination().id) { saveState = true }
+fun NavController.navigateToTopLevelDestination(destination: TopLevelDestination) {
+    navigate(destination.route) {
+        popUpTo<AppRoute.Home> { saveState = true }
         launchSingleTop = true
         restoreState = true
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="navigation_home">Главная</string>
+    <string name="navigation_create">Создать</string>
+    <string name="navigation_profile">Профиль</string>
+</resources>

@@ -31,15 +31,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import com.codekotliners.memify.features.auth.R
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.authButton
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.features.auth.presentation.state.RegistrationEvent
 import com.codekotliners.memify.features.auth.presentation.state.RegistrationUiState
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.ConfirmPasswordErrors
@@ -51,18 +48,15 @@ import com.codekotliners.memify.features.auth.presentation.viewmodel.Registratio
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
-    navController: NavHostController,
+    onBackClick: () -> Unit,
+    onRegistrationSucceeded: () -> Unit,
     viewModel: RegistrationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.registrationCompletedSuccessfully) {
         if (uiState.registrationCompletedSuccessfully) {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set(AUTH_BRANCH_SUCCESS_EVENT, true)
-
-            navController.popBackStack(route = NavRoutes.Auth.route, inclusive = false)
+            onRegistrationSucceeded()
         }
     }
 
@@ -85,7 +79,7 @@ fun RegistrationScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.go_back),
@@ -206,5 +200,8 @@ private fun RegisterButton(onEvent: (RegistrationEvent) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegistrationScreen() {
-    RegistrationScreen(navController = NavHostController(LocalContext.current))
+    RegistrationScreen(
+        onBackClick = {},
+        onRegistrationSucceeded = {},
+    )
 }

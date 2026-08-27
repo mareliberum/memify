@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.codekotliners.memify.core.navigation.entities.TopLevelDestination
 import com.codekotliners.memify.core.prefs.ThemeMode
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.core.theme.surfaceDark
@@ -92,7 +93,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val destination = intent?.extras?.getString("shortcut_destination")
+        val launchDestination =
+            ShortcutDestination.fromValue(
+                intent?.getStringExtra(SHORTCUT_DESTINATION_EXTRA),
+            )
 
         enableEdgeToEdge()
 
@@ -111,8 +115,26 @@ class MainActivity : ComponentActivity() {
                 dynamicColor = false,
                 darkTheme = themeKind,
             ) {
-                App(destination)
+                App(launchDestination)
             }
         }
+    }
+}
+
+private const val SHORTCUT_DESTINATION_EXTRA = "shortcut_destination"
+
+private enum class ShortcutDestination(
+    val value: String,
+    val destination: TopLevelDestination,
+) {
+    CREATE(
+        value = "creation",
+        destination = TopLevelDestination.Create,
+    ),
+    ;
+
+    companion object {
+        fun fromValue(value: String?): TopLevelDestination? =
+            entries.firstOrNull { destination -> destination.value == value }?.destination
     }
 }

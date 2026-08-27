@@ -13,9 +13,7 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.network)
     implementation(projects.core.prefs)
-    implementation(projects.core.navigation)
     implementation(projects.core.ui)
-    implementation(projects.feature.auth)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)

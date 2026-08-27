@@ -3,7 +3,8 @@ package com.codekotliners.memify.features.settings.presentation.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
+import androidx.navigation.toRoute
+import com.codekotliners.memify.core.navigation.entities.AppRoute
 import com.codekotliners.memify.features.settings.domain.model.SettingsAccount
 import com.codekotliners.memify.features.settings.domain.repository.SettingsRepository
 import com.codekotliners.memify.features.settings.presentation.model.SettingsAccountUiModel
@@ -222,24 +223,19 @@ class SettingsViewModel @Inject constructor(
 }
 
 private fun SavedStateHandle.initialSettingsState(): SettingsUiState {
-    val isAuthenticated = get<Boolean>(NavRoutes.SETTINGS_INITIAL_AUTHENTICATED)
-    val displayName = get<String>(NavRoutes.SETTINGS_INITIAL_DISPLAY_NAME).orEmpty()
+    val route = toRoute<AppRoute.Settings>()
     val account =
-        when (isAuthenticated) {
-            true ->
-                SettingsAccountUiModel.Authenticated(
-                    displayName = displayName,
-                    avatarUrl =
-                        get<String>(NavRoutes.SETTINGS_INITIAL_AVATAR_URL)
-                            ?.takeIf { avatarUrl -> avatarUrl.isNotBlank() },
-                )
-
-            false -> SettingsAccountUiModel.Guest
-            null -> SettingsAccountUiModel.Loading
+        if (route.isAuthenticated) {
+            SettingsAccountUiModel.Authenticated(
+                displayName = route.displayName,
+                avatarUrl = route.avatarUrl?.takeIf(String::isNotBlank),
+            )
+        } else {
+            SettingsAccountUiModel.Guest
         }
 
     return SettingsUiState(
         account = account,
-        nameInput = displayName.takeIf { isAuthenticated == true }.orEmpty(),
+        nameInput = route.displayName.takeIf { route.isAuthenticated }.orEmpty(),
     )
 }

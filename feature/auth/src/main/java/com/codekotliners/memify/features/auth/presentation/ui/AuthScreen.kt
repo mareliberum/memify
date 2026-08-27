@@ -12,36 +12,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.logger.Logger
-import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.features.auth.presentation.viewmodel.AuthState
 import com.codekotliners.memify.features.auth.presentation.viewmodel.AuthenticationViewModel
 
-const val AUTH_BRANCH_SUCCESS_EVENT = "login_successful"
-
 @Composable
 fun AuthScreen(
-    navController: NavController,
+    branchAuthenticationCompleted: Boolean,
+    onBranchAuthenticationHandled: () -> Unit,
+    onAuthenticated: () -> Unit,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToRegister: () -> Unit,
     viewModel: AuthenticationViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val authState by viewModel.authState.collectAsState()
 
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val authResult =
-        currentBackStackEntry
-            ?.savedStateHandle
-            ?.get<Boolean>(AUTH_BRANCH_SUCCESS_EVENT)
-
-    LaunchedEffect(authResult) {
-        if (authResult == true) {
+    LaunchedEffect(branchAuthenticationCompleted) {
+        if (branchAuthenticationCompleted) {
             viewModel.checkCurrentUser()
-            currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_BRANCH_SUCCESS_EVENT)
+            onBranchAuthenticationHandled()
         }
     }
 
@@ -55,10 +47,7 @@ fun AuthScreen(
     LaunchedEffect(authState) {
         when (authState) {
             is AuthState.Authenticated -> {
-                navController.popBackStack(route = NavRoutes.Auth.route, inclusive = true)
-                navController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.set(AUTH_SUCCESS_EVENT, true)
+                onAuthenticated()
                 viewModel.resetSignInState()
             }
             is AuthState.Error -> showError(context, (authState as AuthState.Error).exception)
@@ -69,8 +58,9 @@ fun AuthScreen(
 
     if (authState == AuthState.Unauthenticated) {
         AuthScreenContent(
-            navController = navController,
             webClientId = viewModel.webClientId,
+            onNavigateToLogin = onNavigateToLogin,
+            onNavigateToRegister = onNavigateToRegister,
             onGoogleLauncherClick = {
                 googleLauncher.launch(viewModel.getGoogleSignInIntent())
             },
@@ -96,6 +86,12 @@ private fun showError(context: Context, error: Throwable) {
 @Composable
 fun AuthScreenPreview() {
     MemifyTheme {
-        AuthScreen(navController = NavController(LocalContext.current))
+        AuthScreen(
+            branchAuthenticationCompleted = false,
+            onBranchAuthenticationHandled = {},
+            onAuthenticated = {},
+            onNavigateToLogin = {},
+            onNavigateToRegister = {},
+        )
     }
 }

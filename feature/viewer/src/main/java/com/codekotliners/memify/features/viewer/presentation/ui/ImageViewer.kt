@@ -30,13 +30,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.codekotliners.memify.core.ui.LocalNavAnimatedVisibilityScope
 import com.codekotliners.memify.core.ui.LocalSharedTransitionScope
-import com.codekotliners.memify.features.viewer.R
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.ui.components.CenteredCircularProgressIndicator
-import com.codekotliners.memify.core.navigation.entities.ImageType
+import com.codekotliners.memify.features.viewer.R
+import com.codekotliners.memify.features.viewer.domain.model.ImageType
 import com.codekotliners.memify.features.viewer.presentation.state.ImageState
 import com.codekotliners.memify.features.viewer.presentation.ui.components.ImageViewerTopBar
 import com.codekotliners.memify.features.viewer.presentation.ui.components.TranslatableImage
@@ -45,9 +43,9 @@ import com.codekotliners.memify.features.viewer.presentation.viewmodel.ImageView
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun ImageViewerScreen(
-    imageType: ImageType,
     imageId: String,
-    navController: NavController,
+    onBack: () -> Unit,
+    onUseAsTemplate: (String) -> Unit,
     viewModel: ImageViewerViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
@@ -60,8 +58,8 @@ fun ImageViewerScreen(
         LocalNavAnimatedVisibilityScope.current
             ?: error("No AnimatedVisibilityScope found – make sure you’re inside your AnimatedContent/NavHost")
 
-    LaunchedEffect(imageType, imageId) {
-        viewModel.loadData(imageType, imageId)
+    LaunchedEffect(imageId) {
+        viewModel.loadData(ImageType.POST, imageId)
     }
 
     LaunchedEffect(Unit) {
@@ -80,16 +78,13 @@ fun ImageViewerScreen(
     Scaffold(
         topBar = {
             ImageViewerTopBar(
-                onBack = { navController.popBackStack() },
+                onBack = onBack,
                 onShareClick = { viewModel.onShareClick() },
                 onDownloadClick = { viewModel.onDownloadClick(context) },
                 onTakeTemplateClick = {
                     val url = viewModel.onTakeTemplateClick()
                     if (url != null) {
-                        navController.navigate(NavRoutes.Create.createRoute(url)) {
-                            popUpTo(NavRoutes.Home.route)
-                            launchSingleTop = true
-                        }
+                        onUseAsTemplate(url)
                     } else {
                         Toast
                             .makeText(

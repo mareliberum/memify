@@ -31,15 +31,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import com.codekotliners.memify.features.auth.R
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.authButton
+import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.features.auth.presentation.state.LoginEvent
 import com.codekotliners.memify.features.auth.presentation.state.LoginUiState
 import com.codekotliners.memify.features.auth.presentation.ui.errorcodes.LoginErrors
@@ -49,18 +46,15 @@ import com.codekotliners.memify.features.auth.presentation.viewmodel.LoginViewMo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    navController: NavHostController,
+    onBackClick: () -> Unit,
+    onLoginSucceeded: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.loginCompletedSuccessfully) {
         if (uiState.loginCompletedSuccessfully) {
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set(AUTH_BRANCH_SUCCESS_EVENT, true)
-
-            navController.popBackStack(route = NavRoutes.Auth.route, inclusive = false)
+            onLoginSucceeded()
         }
     }
 
@@ -83,7 +77,7 @@ fun LoginScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.go_back),
@@ -178,5 +172,8 @@ fun LoginForm(
 @Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
-    LoginScreen(navController = NavHostController(LocalContext.current))
+    LoginScreen(
+        onBackClick = {},
+        onLoginSucceeded = {},
+    )
 }

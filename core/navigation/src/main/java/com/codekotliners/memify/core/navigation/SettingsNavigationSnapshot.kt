@@ -1,7 +1,7 @@
 package com.codekotliners.memify.core.navigation
 
 import androidx.navigation.NavController
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
+import com.codekotliners.memify.core.navigation.entities.AppRoute
 
 fun NavController.navigateToSettings(
     isAuthenticated: Boolean,
@@ -9,7 +9,7 @@ fun NavController.navigateToSettings(
     avatarUrl: String?,
 ) {
     navigate(
-        NavRoutes.Settings.createRoute(
+        AppRoute.Settings(
             isAuthenticated = isAuthenticated,
             displayName = displayName,
             avatarUrl = avatarUrl,

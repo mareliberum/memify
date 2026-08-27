@@ -22,7 +22,7 @@ import com.codekotliners.memify.core.usecases.PublishImageUseCase
 import com.codekotliners.memify.features.viewer.R
 import com.codekotliners.memify.core.repositories.UriRepository
 import com.codekotliners.memify.features.viewer.domain.model.GenericImage
-import com.codekotliners.memify.core.navigation.entities.ImageType
+import com.codekotliners.memify.features.viewer.domain.model.ImageType
 import com.codekotliners.memify.features.viewer.domain.repository.ImageRepository
 import com.codekotliners.memify.features.viewer.presentation.state.ErrorType
 import com.codekotliners.memify.features.viewer.presentation.state.ImageState

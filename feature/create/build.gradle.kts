@@ -9,7 +9,6 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.navigation)
     implementation(projects.core.ui)
     implementation(projects.feature.templates)
     implementation(projects.feature.viewer)
@@ -19,7 +18,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.activity.compose)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)

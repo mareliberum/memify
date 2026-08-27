@@ -11,7 +11,6 @@ android {
 dependencies {
     implementation(projects.core.network)
     implementation(projects.core.common)
-    implementation(projects.core.navigation)
     implementation(projects.core.ui)
     implementation(projects.core.database)
     implementation(projects.core.user)
@@ -21,7 +20,6 @@ dependencies {
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.navigation.compose)
     debugImplementation(libs.androidx.ui.tooling)
 
     implementation(libs.androidx.core.ktx)
