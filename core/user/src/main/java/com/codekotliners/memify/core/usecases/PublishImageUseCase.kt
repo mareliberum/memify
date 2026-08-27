@@ -29,8 +29,13 @@ class PublishImageUseCase @Inject constructor(
                     id = "id",
                     imageUrl = "",
                     authorId = uid ?: "",
-                    // TODO тут научиться передавать templateid, чтобы потом можно было брать шаблон
-                    templateId = "templateId",
+                    // TODO тут научиться передавать templateId, чтобы потом можно было брать шаблон.
+                    // Раньше тут был хардкод строки "templateId" — она никогда не совпадает с
+                    // реальным id в таблице templates, и бэк ронял INSERT из-за foreign key
+                    // (posts.template_id -> templates.id), так что публикация поста падала
+                    // на каждом вызове. Поле nullable — шлём null, пока реальный templateId
+                    // неоткуда взять.
+                    templateId = null,
                     height = height,
                     width = width,
                     likesCount = 0,

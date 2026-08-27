@@ -76,11 +76,20 @@ class AuthenticationViewModel @Inject constructor(
         viewModelScope.launch {
             _authState.value = AuthState.Loading
 
-            try {
-                block()
-            } catch (e: Exception) {
-                _authState.value = AuthState.Error(e)
-                Response.Failure(e)
+            val result =
+                try {
+                    block()
+                } catch (e: Exception) {
+                    Response.Failure(e)
+                }
+
+            // Раньше результат block() (в т.ч. Response.Failure от неудачного запроса —
+            // например, бэк отклонил Google ID-токен или сеть недоступна) здесь просто
+            // отбрасывался, и ниже состояние безусловно выставлялось в Unauthenticated —
+            // то есть при ошибке экран визуально не менялся вообще, будто ничего не произошло.
+            if (result is Response.Failure) {
+                _authState.value = AuthState.Error(result.error)
+                return@launch
             }
 
             _authState.value =

@@ -15,6 +15,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.ViewModel
 import com.codekotliners.memify.core.theme.FontFamilyImpact
 import com.codekotliners.memify.features.create.domain.CanvasElement
@@ -33,11 +34,22 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
     val currentLine = mutableStateListOf<Offset>()
     val currentLineWidth = mutableFloatStateOf(50f)
     val currentLineColor = mutableStateOf(Color.Black)
+
     var currentText by mutableStateOf("")
     var currentTextColor = mutableStateOf(Color.Black)
     var currentTextSize = mutableFloatStateOf(24f)
     val currentFontFamily: MutableState<FontFamily> = mutableStateOf(FontFamilyImpact)
     val currentFontWeight = mutableStateOf(FontWeight.Normal)
+    val currentTextAlign = mutableStateOf(TextAlign.Center)
+    var currentTextHasOutline by mutableStateOf(false)
+
+    var selectedElementId by mutableStateOf<Long?>(null)
+        private set
+
+    var editingTextId by mutableStateOf<Long?>(null)
+        private set
+
+    private var pendingTextPosition = Offset.Zero
 
     var showTextInput by mutableStateOf(false)
     var showTextPreview by mutableStateOf(false)
@@ -55,14 +67,25 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
 
     val imagePickerLauncher = mutableStateOf<ActivityResultLauncher<Intent>?>(null)
 
+    val selectedElement: CanvasElement?
+        get() {
+            val id = selectedElementId ?: return null
+            return canvasElements.find { it.id == id }
+        }
+
+    val selectedTextElement: TextElement?
+        get() = selectedElement as? TextElement
+
+    val selectedDrawingElement: ColoredLine?
+        get() = selectedElement as? ColoredLine
+
     fun addPointToCurrentLine(point: Offset) {
         currentLine.add(point)
     }
 
     fun finalizeCurrentLine() {
         if (currentLine.size > 1) {
-            history.add(canvasElements.toList())
-            future.clear()
+            pushHistory()
             canvasElements.add(
                 ColoredLine(
                     points = currentLine.toList(),
@@ -74,27 +97,90 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         currentLine.clear()
     }
 
-    fun startWriting() {
-        clearModes()
-        isWritingEnabled = true
-        showTextInput = true
-        currentText = ""
+    fun togglePaintingMode() {
+        if (isPaintingEnabled) {
+            isPaintingEnabled = false
+            deselectElement()
+            showColors = false
+        } else {
+            isPaintingEnabled = true
+            isWritingEnabled = false
+            deselectElement()
+            showColors = false
+            showFonts = false
+            showWeights = false
+        }
     }
 
-    fun clearModes() {
+    fun toggleWritingMode() {
+        if (isWritingEnabled) {
+            isWritingEnabled = false
+            deselectElement()
+            showColors = false
+            showFonts = false
+            showWeights = false
+        } else {
+            isWritingEnabled = true
+            isPaintingEnabled = false
+        }
+    }
+
+    fun startWriting(position: Offset? = null) {
+        if (selectedElementId != null) {
+            deselectElement()
+            return
+        }
         isPaintingEnabled = false
-        isWritingEnabled = false
-        showTextPreview = false
+        isWritingEnabled = true
         showColors = false
         showFonts = false
         showWeights = false
+        editingTextId = null
+        currentText = ""
+        pendingTextPosition = position ?: Offset(imageWidth / 4f, imageHeight / 3f)
+        showTextInput = true
+    }
+
+    fun startEditingSelectedText() {
+        val element = selectedTextElement ?: return
+        editingTextId = element.id
+        currentText = element.text
+        showTextInput = true
+    }
+
+    fun selectElement(element: CanvasElement) {
+        selectedElementId = element.id
+        showColors = false
+        showFonts = false
+        showWeights = false
+        when (element) {
+            is TextElement -> {
+                isWritingEnabled = true
+                isPaintingEnabled = false
+                currentTextColor.value = element.color
+                currentTextSize.floatValue = element.size
+                currentFontFamily.value = element.fontFamily
+                currentFontWeight.value = element.fontWeight
+                currentTextAlign.value = element.textAlign
+                currentTextHasOutline = element.hasOutline
+            }
+            is ColoredLine -> {
+                isPaintingEnabled = true
+                isWritingEnabled = false
+                currentLineColor.value = element.color
+            }
+        }
+    }
+
+    fun deselectElement() {
+        selectedElementId = null
     }
 
     fun clearCanvas() {
-        history.add(canvasElements.toList())
-        future.clear()
+        pushHistory()
         canvasElements.clear()
         currentLine.clear()
+        deselectElement()
     }
 
     fun undo() {
@@ -102,6 +188,7 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
             future.add(canvasElements.toList())
             canvasElements.clear()
             canvasElements.addAll(history.removeAt(history.lastIndex))
+            deselectElement()
         }
     }
 
@@ -110,33 +197,137 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
             history.add(canvasElements.toList())
             canvasElements.clear()
             canvasElements.addAll(future.removeAt(future.lastIndex))
+            deselectElement()
         }
     }
 
     fun finishWriting() {
-        if (currentText.isNotBlank()) {
-            history.add(canvasElements.toList())
-            future.clear()
-            canvasElements.add(
+        val id = editingTextId
+        if (id != null) {
+            val index = canvasElements.indexOfFirst { it.id == id }
+            val existing = index.takeIf { it >= 0 }?.let { canvasElements[it] as? TextElement }
+            if (existing != null && currentText.isNotBlank() && currentText != existing.text) {
+                pushHistory()
+                canvasElements[index] = existing.copy(text = currentText)
+            }
+        } else if (currentText.isNotBlank()) {
+            pushHistory()
+            val newElement =
                 TextElement(
                     text = currentText,
                     color = currentTextColor.value,
                     size = currentTextSize.floatValue,
                     fontFamily = currentFontFamily.value,
                     fontWeight = currentFontWeight.value,
-                    position = Offset(0f, 0f),
-                ),
-            )
+                    textAlign = currentTextAlign.value,
+                    hasOutline = currentTextHasOutline,
+                    position = pendingTextPosition,
+                )
+            canvasElements.add(newElement)
+            selectedElementId = newElement.id
         }
         showTextInput = false
+        editingTextId = null
         currentText = ""
     }
 
-    fun updateTextPosition(element: TextElement, newPosition: Offset) {
-        val index = canvasElements.indexOfFirst { it.id == element.id }
+    fun setTextColor(color: Color) {
+        currentTextColor.value = color
+        updateSelectedText { it.copy(color = color) }
+    }
+
+    fun setFontFamily(fontFamily: FontFamily) {
+        currentFontFamily.value = fontFamily
+        updateSelectedText { it.copy(fontFamily = fontFamily) }
+    }
+
+    fun setFontWeight(fontWeight: FontWeight) {
+        currentFontWeight.value = fontWeight
+        updateSelectedText { it.copy(fontWeight = fontWeight) }
+    }
+
+    fun setTextAlign(textAlign: TextAlign) {
+        currentTextAlign.value = textAlign
+        updateSelectedText { it.copy(textAlign = textAlign) }
+    }
+
+    fun toggleTextOutline() {
+        val newValue = !currentTextHasOutline
+        currentTextHasOutline = newValue
+        updateSelectedText { it.copy(hasOutline = newValue) }
+    }
+
+    fun setLineColor(color: Color) {
+        currentLineColor.value = color
+        val id = selectedElementId ?: return
+        val index = canvasElements.indexOfFirst { it.id == id }
         if (index >= 0) {
-            canvasElements[index] = element.copy(position = newPosition)
+            val existing = canvasElements[index] as? ColoredLine ?: return
+            canvasElements[index] = existing.copy(color = color)
         }
+    }
+
+    fun transformText(elementId: Long, positionDelta: Offset, zoom: Float) {
+        val index = canvasElements.indexOfFirst { it.id == elementId }
+        if (index < 0) return
+        val existing = canvasElements[index] as? TextElement ?: return
+        val newSize = (existing.size * zoom).coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE)
+        canvasElements[index] =
+            existing.copy(
+                position = existing.position + positionDelta,
+                size = newSize,
+            )
+        if (selectedElementId == elementId) {
+            currentTextSize.floatValue = newSize
+        }
+    }
+
+    fun transformDrawing(elementId: Long, positionDelta: Offset, zoom: Float) {
+        val index = canvasElements.indexOfFirst { it.id == elementId }
+        if (index < 0) return
+        val existing = canvasElements[index] as? ColoredLine ?: return
+        val newScale = (existing.scale * zoom).coerceIn(MIN_DRAWING_SCALE, MAX_DRAWING_SCALE)
+        canvasElements[index] =
+            existing.copy(
+                position = existing.position + positionDelta,
+                scale = newScale,
+            )
+    }
+
+    fun deleteSelectedElement() {
+        val id = selectedElementId ?: return
+        val index = canvasElements.indexOfFirst { it.id == id }
+        if (index >= 0) {
+            pushHistory()
+            canvasElements.removeAt(index)
+        }
+        selectedElementId = null
+    }
+
+    fun duplicateSelectedText() {
+        val existing = selectedTextElement ?: return
+        pushHistory()
+        val copy =
+            existing.copy(
+                id = System.currentTimeMillis(),
+                position = existing.position + Offset(DUPLICATE_OFFSET_PX, DUPLICATE_OFFSET_PX),
+            )
+        canvasElements.add(copy)
+        selectedElementId = copy.id
+    }
+
+    private fun updateSelectedText(transform: (TextElement) -> TextElement) {
+        val id = selectedElementId ?: return
+        val index = canvasElements.indexOfFirst { it.id == id }
+        if (index >= 0) {
+            val existing = canvasElements[index] as? TextElement ?: return
+            canvasElements[index] = transform(existing)
+        }
+    }
+
+    private fun pushHistory() {
+        history.add(canvasElements.toList())
+        future.clear()
     }
 
     fun pickImageFromGallery() {
@@ -151,5 +342,13 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         uri?.let {
             imageUrl = it.toString()
         }
+    }
+
+    companion object {
+        private const val MIN_TEXT_SIZE = 8f
+        private const val MAX_TEXT_SIZE = 220f
+        private const val DUPLICATE_OFFSET_PX = 28f
+        private const val MIN_DRAWING_SCALE = 0.2f
+        private const val MAX_DRAWING_SCALE = 6f
     }
 }

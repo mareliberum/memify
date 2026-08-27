@@ -20,7 +20,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codekotliners.memify.core.navigation.entities.NavBarItems
 
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(
+    navController: NavController,
+    onNavigateAway: (navigate: () -> Unit) -> Unit = { navigate -> navigate() },
+) {
     NavigationBar(
         modifier =
             Modifier
@@ -38,10 +41,17 @@ fun BottomNavigationBar(navController: NavController) {
                 modifier = Modifier.weight(1f),
                 selected = selected,
                 onClick = {
-                    navController.navigate(navItem.route) {
-                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
+                    val navigate = {
+                        navController.navigate(navItem.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                    if (selected) {
+                        navigate()
+                    } else {
+                        onNavigateAway(navigate)
                     }
                 },
                 icon = {

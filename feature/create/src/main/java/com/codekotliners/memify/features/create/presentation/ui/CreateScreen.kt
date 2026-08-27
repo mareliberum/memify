@@ -2,6 +2,7 @@ package com.codekotliners.memify.features.create.presentation.ui
 
 import android.app.Activity
 import android.content.Intent
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -9,6 +10,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -30,6 +32,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -38,9 +41,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,6 +64,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.rememberGraphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -86,6 +92,9 @@ import com.codekotliners.memify.features.viewer.presentation.viewmodel.ImageView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+private const val MIN_IMAGE_SCALE = 1f
+private const val MAX_IMAGE_SCALE = 4f
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateScreen(
@@ -96,6 +105,42 @@ fun CreateScreen(
     viewModelViewer: ImageViewerViewModel = hiltViewModel(),
 ) {
     val isPublishing by viewModelViewer.isPublishing.collectAsState()
+
+    var pendingExitAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    BackHandler {
+        pendingExitAction = { navController.popBackStack() }
+    }
+
+    val currentPendingExitAction = pendingExitAction
+    if (currentPendingExitAction != null) {
+        AlertDialog(
+            onDismissRequest = { pendingExitAction = null },
+            title = { Text(stringResource(R.string.exit_confirmation_title)) },
+            text = { Text(stringResource(R.string.exit_confirmation_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingExitAction = null
+                        currentPendingExitAction()
+                    },
+                ) {
+                    Text(stringResource(R.string.exit_confirmation_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingExitAction = null }) {
+                    Text(stringResource(R.string.cancel_action))
+                }
+            },
+        )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearCanvas()
+        }
+    }
 
     val galleryLauncher =
         rememberLauncherForActivityResult(
@@ -129,6 +174,7 @@ fun CreateScreen(
 
     AppScaffold(
         navController = navController,
+        onNavigateAway = { navigate -> pendingExitAction = navigate },
     ) { padding ->
         Box(
             modifier =
@@ -157,7 +203,7 @@ private fun PublishingLoadCircle(isPublishing: Boolean) {
                 Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.4f))
-                    .clickable { /* Блокирует клики */ },
+                    .clickable {},
             contentAlignment = Alignment.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -246,7 +292,7 @@ private fun CreateScreenBottomSheet(
             viewModel,
             graphicsLayer,
             scale,
-            onScaleChange = { newScale -> scale = newScale },
+            onScaleChange = { newScale -> scale = newScale.coerceIn(MIN_IMAGE_SCALE, MAX_IMAGE_SCALE) },
         )
         PublishingLoadCircle(isPublishing)
 
@@ -337,7 +383,6 @@ private fun InteractiveCanvas(
             model =
                 when {
                     viewModel.imageUrl?.startsWith("content://") == true -> {
-                        // Handle content URI (from gallery)
                         ImageRequest
                             .Builder(context)
                             .data(viewModel.imageUrl)
@@ -345,7 +390,6 @@ private fun InteractiveCanvas(
                     }
 
                     !viewModel.imageUrl.isNullOrEmpty() -> {
-                        // Handle network URL
                         ImageRequest
                             .Builder(context)
                             .data(viewModel.imageUrl)
@@ -356,7 +400,6 @@ private fun InteractiveCanvas(
                 },
         )
 
-    // Получаем размеры изображения после загрузки
     LaunchedEffect(painter.state) {
         if (painter.state is AsyncImagePainter.State.Success) {
             val size = painter.intrinsicSize
@@ -433,10 +476,16 @@ private fun ImageBox(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                 ).then(
-                    if (viewModel.isWritingEnabled) {
-                        Modifier.clickable(onClick = { viewModel.startWriting() })
-                    } else {
-                        Modifier
+                    when {
+                        viewModel.selectedElementId != null ->
+                            Modifier.pointerInput(Unit) {
+                                detectTapGestures(onTap = { viewModel.deselectElement() })
+                            }
+                        viewModel.isWritingEnabled ->
+                            Modifier.pointerInput(Unit) {
+                                detectTapGestures(onTap = { offset -> viewModel.startWriting(offset) })
+                            }
+                        else -> Modifier
                     },
                 ).graphicsLayer(
                     scaleX = animatedScale.value,

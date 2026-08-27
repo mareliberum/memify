@@ -16,4 +16,18 @@
     <string name="share_action">Поделиться</string>
     <string name="download_action">Скачать</string>
     <string name="publish_action">Опубликовать</string>
+    <string name="custom_color_action">Свой цвет</string>
+    <string name="cancel_action">Отмена</string>
+    <string name="apply_action">Применить</string>
+    <string name="edit_text_action">Изменить текст</string>
+    <string name="duplicate_text_action">Дублировать</string>
+    <string name="delete_text_action">Удалить</string>
+    <string name="done_editing_action">Готово</string>
+    <string name="outline_text_action">Обводка</string>
+    <string name="align_left_action">По левому краю</string>
+    <string name="align_center_action">По центру</string>
+    <string name="align_right_action">По правому краю</string>
+    <string name="exit_confirmation_title">Прекратить редактирование?</string>
+    <string name="exit_confirmation_message">Все изменения на канвасе будут потеряны.</string>
+    <string name="exit_confirmation_confirm">Выйти</string>
 </resources>

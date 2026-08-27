@@ -23,6 +23,7 @@ fun AppScaffold(
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
+    onNavigateAway: (navigate: () -> Unit) -> Unit = { navigate -> navigate() },
     content: @Composable (innerPadding: PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -34,7 +35,7 @@ fun AppScaffold(
         topBar = topBar,
         contentWindowInsets = WindowInsets(0.dp),
         bottomBar = {
-            BottomNavigationBar(navController = navController)
+            BottomNavigationBar(navController = navController, onNavigateAway = onNavigateAway)
         },
     ) { innerPadding ->
         content(innerPadding)

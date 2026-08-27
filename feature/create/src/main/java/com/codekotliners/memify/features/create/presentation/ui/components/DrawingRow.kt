@@ -13,11 +13,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.codekotliners.memify.features.create.R
 import com.codekotliners.memify.features.create.presentation.viewmodel.CanvasViewModel
 
 @Composable
 fun DrawingRow(viewModel: CanvasViewModel) {
+    val selectedDrawing = viewModel.selectedDrawingElement
+
     Row(
         modifier =
             Modifier
@@ -48,10 +52,22 @@ fun DrawingRow(viewModel: CanvasViewModel) {
             ColorsDropdownMenu(
                 showColors = viewModel.showColors,
                 onShowColorsFalse = { viewModel.showColors = false },
-                onChangeSelectedColor = { color -> viewModel.currentLineColor.value = color },
+                onChangeSelectedColor = { color -> viewModel.setLineColor(color) },
+                currentColor = viewModel.currentLineColor.value,
             )
         }
 
-        RowSlider(viewModel, viewModel.currentLineWidth)
+        RowSlider(viewModel, viewModel.currentLineWidth, modifier = Modifier.weight(1f))
+
+        if (selectedDrawing != null) {
+            Divider()
+            IconActionButton(
+                iconResource = R.drawable.baseline_delete_outline_24,
+                contentDescription = stringResource(R.string.delete_text_action),
+                onClick = { viewModel.deleteSelectedElement() },
+            )
+        }
+
+        DoneButton(onClick = { viewModel.togglePaintingMode() })
     }
 }

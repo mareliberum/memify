@@ -159,5 +159,5 @@
       готовый). Именно этот же Client ID должен быть указан в GOOGLE_OAUTH_CLIENT_ID на бэке
       (см. backend/src/main/kotlin/Security.kt).
     -->
-    <string name="default_web_client_id" translatable="false">REPLACE_WITH_YOUR_GOOGLE_OAUTH_WEB_CLIENT_ID</string>
+    <string name="default_web_client_id" translatable="false">99227147293-f8n9dvhft7e4rd17345dcsm7p3gso73h.apps.googleusercontent.com</string>
 </resources>

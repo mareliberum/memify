@@ -39,10 +39,7 @@ fun ActionsRow(viewModel: CanvasViewModel) {
             ActionsRowButton(R.drawable.baseline_delete_outline_24) { viewModel.clearCanvas() }
 
             IconButton(
-                onClick = {
-                    viewModel.isPaintingEnabled = !viewModel.isPaintingEnabled
-                    viewModel.isWritingEnabled = false
-                },
+                onClick = { viewModel.togglePaintingMode() },
                 modifier =
                     Modifier
                         .size(40.dp)
@@ -68,10 +65,7 @@ fun ActionsRow(viewModel: CanvasViewModel) {
             }
 
             IconButton(
-                onClick = {
-                    viewModel.isWritingEnabled = !viewModel.isWritingEnabled
-                    viewModel.isPaintingEnabled = false
-                },
+                onClick = { viewModel.toggleWritingMode() },
                 modifier =
                     Modifier
                         .size(40.dp)

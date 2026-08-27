@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -16,7 +17,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
@@ -26,7 +26,6 @@ import com.codekotliners.memify.features.create.presentation.viewmodel.CanvasVie
 
 @Composable
 fun EditingCanvasElements(viewModel: CanvasViewModel) {
-    val elements by rememberUpdatedState(viewModel.canvasElements)
     val currentLine by rememberUpdatedState(viewModel.currentLine)
     val currentLineColor by rememberUpdatedState(viewModel.currentLineColor.value)
     val currentLineWidth by rememberUpdatedState(viewModel.currentLineWidth.floatValue)
@@ -47,12 +46,10 @@ fun EditingCanvasElements(viewModel: CanvasViewModel) {
                             Modifier
                         },
                     ).drawWithCache {
-                        val lines = elements.filterIsInstance<ColoredLine>()
                         val currentPath = if (currentLine.size > 1) createDrawingLinePath(currentLine) else null
 
                         onDrawWithContent {
                             drawContent()
-                            drawLines(lines)
                             currentPath?.let {
                                 drawPath(
                                     path = it,
@@ -69,11 +66,13 @@ fun EditingCanvasElements(viewModel: CanvasViewModel) {
                     },
         )
 
-        viewModel.canvasElements.filterIsInstance<TextElement>().forEach { element ->
-            TextElementView(
-                element = element,
-                viewModel = viewModel,
-            )
+        viewModel.canvasElements.forEach { element ->
+            key(element.id) {
+                when (element) {
+                    is ColoredLine -> DrawingElementView(element = element, viewModel = viewModel)
+                    is TextElement -> TextElementView(element = element, viewModel = viewModel)
+                }
+            }
         }
     }
 }
@@ -85,23 +84,6 @@ private fun createDrawingLinePath(points: List<Offset>) =
             points.forEach { point -> lineTo(point.x, point.y) }
         }
     }
-
-private fun DrawScope.drawLines(lines: List<ColoredLine>) {
-    lines.forEach { line ->
-        if (line.points.size > 1) {
-            drawPath(
-                path = createDrawingLinePath(line.points),
-                color = line.color,
-                style =
-                    Stroke(
-                        width = line.strokeWidth,
-                        cap = StrokeCap.Round,
-                        join = StrokeJoin.Round,
-                    ),
-            )
-        }
-    }
-}
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 private fun Modifier.drawingCanvas(viewModel: CanvasViewModel) =
