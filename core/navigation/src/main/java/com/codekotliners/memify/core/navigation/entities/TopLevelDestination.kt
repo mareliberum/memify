@@ -48,7 +48,7 @@ sealed class TopLevelDestination(
     }
 
     companion object {
-        val entries: List<TopLevelDestination> = listOf(Home, Create, Profile)
+        val entries: List<TopLevelDestination> by lazy { listOf(Home, Create, Profile) }
     }
 }
 
