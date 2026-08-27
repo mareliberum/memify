@@ -23,12 +23,13 @@ sealed interface TabState {
 }
 
 enum class ErrorType(
+    @StringRes val titleResId: Int,
     @StringRes val userMessageResId: Int,
 ) {
-    NETWORK(R.string.network_errormessage),
-    NEED_LOGIN(R.string.need_authenticated_message),
-    UNKNOWN(R.string.unknown_error_message),
-    NEED_LINK_VK(R.string.link_vk_account_message),
+    NETWORK(R.string.templates_network_error_title, R.string.templates_network_error_message),
+    NEED_LOGIN(R.string.templates_login_required_title, R.string.templates_login_required_message),
+    UNKNOWN(R.string.templates_unknown_error_title, R.string.templates_unknown_error_message),
+    NEED_LINK_VK(R.string.templates_vk_required_title, R.string.templates_vk_required_message),
     ;
 }
 

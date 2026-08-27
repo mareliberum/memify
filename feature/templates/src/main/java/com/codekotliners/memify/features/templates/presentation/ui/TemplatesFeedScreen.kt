@@ -50,13 +50,15 @@ fun TemplatesFeedScreen(
     }
 
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+    val savedStateHandle = currentBackStackEntry?.savedStateHandle
     val loginResult =
-        currentBackStackEntry
-            ?.savedStateHandle
-            ?.get<Boolean>(AUTH_SUCCESS_EVENT)
+        savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
 
     LaunchedEffect(loginResult) {
-        viewModel.refresh()
+        if (loginResult == true) {
+            viewModel.refresh()
+            savedStateHandle?.remove<Boolean>(AUTH_SUCCESS_EVENT)
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -84,12 +86,16 @@ fun TemplatesFeedScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             when (val currentState = pageState.getCurrentTabState()) {
-                TabState.None -> {}
+                TabState.None -> LoadingTab()
 
-                is TabState.Loading -> LoadingTab()
+                TabState.Loading -> LoadingTab()
 
                 is TabState.Error -> {
-                    ErrorTab(errorType = currentState.type) { onLoginClicked() }
+                    ErrorTab(
+                        errorType = currentState.type,
+                        onLoginClicked = onLoginClicked,
+                        onRetryClicked = viewModel::refresh,
+                    )
                 }
 
                 is TabState.Content -> {

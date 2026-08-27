@@ -1,12 +1,17 @@
 <resources>
-    <string name="network_errormessage">Ошибка во время загрузки. Проверьте подключение к сети</string>
-    <string name="need_authenticated_message">Войдите в аккаунт чтобы воспользоваться этой функцией</string>
-    <string name="unknown_error_message">Упс, что-то пошло не так, попробуйте позже</string>
-    <string name="link_vk_account_message">Привяжите Ваш аккаунт ВК в настройках, чтобы воспользоваться этой функцией</string>
+    <string name="templates_network_error_title">Не удалось загрузить шаблоны</string>
+    <string name="templates_network_error_message">Проверьте подключение к сети и попробуйте ещё раз</string>
+    <string name="templates_login_required_title">Войдите, чтобы открыть избранное</string>
+    <string name="templates_login_required_message">После входа здесь будут храниться понравившиеся шаблоны</string>
+    <string name="templates_unknown_error_title">Что-то пошло не так</string>
+    <string name="templates_unknown_error_message">Не удалось получить шаблоны. Попробуйте ещё раз</string>
+    <string name="templates_vk_required_title">Нужен аккаунт ВКонтакте</string>
+    <string name="templates_vk_required_message">Привяжите аккаунт ВКонтакте в настройках, чтобы открыть сохранённые фотографии</string>
     <string name="Best">Лучшее</string>
     <string name="New">Новое</string>
     <string name="Favourites">Избранное</string>
     <string name="templates_tab_vk">ВК</string>
     <string name="empty_templates_tab_message">Кажется, здесь ничего нет</string>
     <string name="log_in_account">Войти в аккаунт</string>
+    <string name="retry_templates">Повторить</string>
 </resources>

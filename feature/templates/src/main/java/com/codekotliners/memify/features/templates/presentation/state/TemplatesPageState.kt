@@ -12,13 +12,15 @@ data class TemplatesPageState(
 ) {
     fun getTabs(): List<Tab> = Tab.entries.toList()
 
-    fun getCurrentTabState(): TabState =
-        when (selectedTab) {
+    fun getTabState(tab: Tab): TabState =
+        when (tab) {
             Tab.BEST -> bestTemplatesState
             Tab.NEW -> newTemplatesState
             Tab.FAVOURITE -> favouriteTemplatesState
             Tab.VK_IMAGES -> vkTemplatesState
         }
+
+    fun getCurrentTabState(): TabState = getTabState(selectedTab)
 
     fun getIsLoadingMoreByState(state: TabState): Boolean =
         when (state) {
@@ -46,15 +48,21 @@ data class TemplatesPageState(
         return getTemplatesByState(state)
     }
 
-    fun updatedCurrentTabState(newState: TabState): TemplatesPageState =
-        when (selectedTab) {
+    fun updatedTabState(
+        tab: Tab,
+        newState: TabState,
+    ): TemplatesPageState =
+        when (tab) {
             Tab.BEST -> copy(bestTemplatesState = newState)
             Tab.NEW -> copy(newTemplatesState = newState)
             Tab.FAVOURITE -> copy(favouriteTemplatesState = newState)
             Tab.VK_IMAGES -> copy(vkTemplatesState = newState)
         }
 
-    fun updatedCurrentContent(
+    fun updatedCurrentTabState(newState: TabState): TemplatesPageState = updatedTabState(selectedTab, newState)
+
+    fun updatedTabContent(
+        tab: Tab,
         newTemplates: List<Template>,
         loadMode: Boolean? = null,
     ): TemplatesPageState {
@@ -67,8 +75,14 @@ data class TemplatesPageState(
             )
         }
 
-        return updatedCurrentTabState(
-            updatedContent(getCurrentTabState()),
+        return updatedTabState(
+            tab,
+            updatedContent(getTabState(tab)),
         )
     }
+
+    fun updatedCurrentContent(
+        newTemplates: List<Template>,
+        loadMode: Boolean? = null,
+    ): TemplatesPageState = updatedTabContent(selectedTab, newTemplates, loadMode)
 }
