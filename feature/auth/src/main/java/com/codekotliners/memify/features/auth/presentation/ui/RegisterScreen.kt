@@ -138,6 +138,7 @@ fun RegistrationForm(
             value = uiState.name,
             onValueChange = { onEvent(RegistrationEvent.NameChanged(it)) },
             label = { Text(stringResource(R.string.name_field)) },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         NameErrors(uiState.nameErrors)
@@ -148,6 +149,7 @@ fun RegistrationForm(
             value = uiState.email,
             onValueChange = { onEvent(RegistrationEvent.EmailChanged(it)) },
             label = { Text(stringResource(R.string.email_field)) },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         EmailErrors(uiState.emailErrors)
@@ -157,6 +159,7 @@ fun RegistrationForm(
             isError = uiState.passwordErrors.isNotEmpty(),
             label = stringResource(R.string.password_field),
             password = uiState.password,
+            singleLine = true,
             onPasswordChanged = { onEvent(RegistrationEvent.PasswordChanged(it)) },
         )
         PasswordErrors(uiState.passwordErrors)
@@ -166,6 +169,7 @@ fun RegistrationForm(
             isError = uiState.confirmPasswordErrors.isNotEmpty(),
             label = stringResource(R.string.password_confirmation_field),
             password = uiState.confirmPassword,
+            singleLine = true,
             onPasswordChanged = { onEvent(RegistrationEvent.ConfirmPasswordChanged(it)) },
         )
         ConfirmPasswordErrors(uiState.confirmPasswordErrors)
