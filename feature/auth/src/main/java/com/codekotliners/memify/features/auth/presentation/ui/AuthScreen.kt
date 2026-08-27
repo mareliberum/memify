@@ -16,12 +16,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codekotliners.memify.features.auth.R
 import com.codekotliners.memify.core.logger.Logger
+import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.features.auth.presentation.viewmodel.AuthState
 import com.codekotliners.memify.features.auth.presentation.viewmodel.AuthenticationViewModel
 
-const val AUTH_SUCCESS_EVENT = "auth_successful"
 const val AUTH_BRANCH_SUCCESS_EVENT = "login_successful"
 
 @Composable

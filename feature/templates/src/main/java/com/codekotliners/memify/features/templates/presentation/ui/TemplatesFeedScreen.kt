@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.codekotliners.memify.features.auth.presentation.ui.AUTH_SUCCESS_EVENT
+import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
 import com.codekotliners.memify.features.templates.presentation.state.TabState
 import com.codekotliners.memify.features.templates.presentation.ui.components.ErrorTab
 import com.codekotliners.memify.features.templates.presentation.ui.components.LoadingTab

@@ -9,7 +9,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:model"))
     implementation(project(":core:common"))
     implementation(project(":core:database"))
     implementation(project(":core:network"))
@@ -17,8 +16,6 @@ dependencies {
     implementation(project(":core:prefs"))
     implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
-    implementation(project(":feature:auth"))
-    implementation(project(":feature:templates"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
@@ -30,10 +27,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.coil.compose)
-    implementation(libs.coil.base)
+
+    implementation(libs.ktor.client.core)
 
     implementation("com.vk.id:vkid:2.5.1")
 }

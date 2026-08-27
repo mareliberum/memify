@@ -1,7 +1,23 @@
 <resources>
     <string name="profile">Профиль</string>
+    <string name="profile_settings">Настройки профиля</string>
     <string name="up">Вверх</string>
     <string name="log_in_account">Войти в аккаунт</string>
+    <string name="change_profile_photo">Изменить фото профиля</string>
+    <string name="guest_profile_title">Ваш профиль</string>
+    <string name="guest_profile_subtitle">Войдите, чтобы сохранять понравившиеся мемы и настроить аккаунт</string>
+    <string name="logged_profile_subtitle">Ваши мемы и любимые публикации в одном месте</string>
+    <string name="profile_loading">Загружаем данные профиля</string>
+    <string name="created_count_label">Создано</string>
+    <string name="liked_count_label">Понравилось</string>
     <string name="liked">Понравившиеся</string>
     <string name="created">Созданные</string>
+    <string name="empty_created_title">Здесь появятся ваши мемы</string>
+    <string name="empty_created_description">Создайте мем — он сохранится в этой коллекции</string>
+    <string name="empty_liked_title">Пока ничего не понравилось</string>
+    <string name="empty_liked_description">Отмечайте публикации сердцем, чтобы собрать их здесь</string>
+    <string name="profile_load_failed">Не удалось обновить профиль</string>
+    <string name="liked_memes_load_failed">Не удалось загрузить понравившиеся мемы</string>
+    <string name="avatar_update_failed">Не удалось обновить фото профиля</string>
+    <string name="profile_image_load_failed">Не удалось загрузить изображение</string>
 </resources>

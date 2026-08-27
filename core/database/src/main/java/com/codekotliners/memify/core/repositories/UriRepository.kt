@@ -18,8 +18,5 @@ class UriRepository @Inject constructor(
         }
     }
 
-    suspend fun getAllUris(): Flow<List<UriEntity>> =
-        withContext(Dispatchers.IO) {
-            uriDao.getAllUris()
-        }
+    fun getAllUris(): Flow<List<UriEntity>> = uriDao.getAllUris()
 }

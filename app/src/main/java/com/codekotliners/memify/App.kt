@@ -28,7 +28,6 @@ import com.codekotliners.memify.features.auth.presentation.viewmodel.Authenticat
 import com.codekotliners.memify.features.create.presentation.ui.CreateScreen
 import com.codekotliners.memify.features.home.presentation.ui.HomeScreen
 import com.codekotliners.memify.features.profile.presentation.ui.ProfileScreen
-import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileViewModel
 import com.codekotliners.memify.features.settings.presentation.ui.SettingsLoggedScreen
 import com.codekotliners.memify.features.settings.presentation.ui.SettingsUnLoggedScreen
 import com.codekotliners.memify.features.settings.presentation.viewmodel.SettingsScreenViewModel
@@ -43,7 +42,6 @@ fun App(
     destinationScreen: String?,
     authViewModel: AuthenticationViewModel = hiltViewModel(),
     settingsViewModel: SettingsScreenViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
 
@@ -69,7 +67,7 @@ fun App(
                     CompositionLocalProvider(
                         LocalNavAnimatedVisibilityScope provides this,
                     ) {
-                        HomeScreen(navController, profileViewModel = profileViewModel)
+                        HomeScreen(navController)
                     }
                 }
                 composable(
@@ -104,7 +102,7 @@ fun App(
                         onLogin = { navController.navigate(NavRoutes.Auth.route) },
                     )
                 }
-                composable(NavRoutes.Profile.route) { ProfileScreen(navController, profileViewModel) }
+                composable(NavRoutes.Profile.route) { ProfileScreen(navController) }
                 composable(NavRoutes.Auth.route) { AuthScreen(navController, authViewModel) }
                 composable(
                     route = NavRoutes.Login.route,

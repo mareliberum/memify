@@ -1,146 +1,169 @@
 package com.codekotliners.memify.features.profile.presentation.viewmodel
 
-import android.net.Uri
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codekotliners.memify.core.database.entities.UriEntity
-import com.codekotliners.memify.core.network.models.PostDto
-import com.codekotliners.memify.core.prefs.TokenStore
-import com.codekotliners.memify.core.repositories.UriRepository
-import com.codekotliners.memify.core.repositories.user.UserRepository
-import com.codekotliners.memify.core.usecases.GetUserDataUseCase
-import com.codekotliners.memify.core.usecases.UpdateProfileImageUseCase
-import com.codekotliners.memify.core.repositories.likes.LikesRepository
-import com.vk.id.VKID
-import com.vk.id.VKIDUser
-import com.vk.id.refreshuser.VKIDGetUserCallback
-import com.vk.id.refreshuser.VKIDGetUserFail
+import com.codekotliners.memify.features.profile.domain.repository.ProfileRepository
+import com.codekotliners.memify.features.profile.domain.usecase.LoadProfileUseCase
+import com.codekotliners.memify.features.profile.presentation.model.ProfileAccountUiModel
+import com.codekotliners.memify.features.profile.presentation.model.ProfileAction
+import com.codekotliners.memify.features.profile.presentation.model.ProfileMessage
+import com.codekotliners.memify.features.profile.presentation.model.ProfileTab
+import com.codekotliners.memify.features.profile.presentation.model.ProfileUiState
+import com.codekotliners.memify.features.profile.presentation.model.toUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
-
-data class ProfileState(
-    val selectedTab: Int = 0,
-    val isLoggedIn: Boolean = false,
-    val userName: String = "MemeMaker2011",
-    val userImageUri: Uri? = null,
-)
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    user: UserRepository,
-    private val updateProfileImageUseCase: UpdateProfileImageUseCase,
-    private val getUserDataUseCase: GetUserDataUseCase,
-    private val uriRepository: UriRepository,
-    private val likesRepository: LikesRepository,
-    private val tokenStore: TokenStore,
+    private val repository: ProfileRepository,
+    private val loadProfileUseCase: LoadProfileUseCase,
 ) : ViewModel() {
-    private val _state = mutableStateOf(ProfileState())
-    val state: State<ProfileState> = _state
+    private val _uiState = MutableStateFlow(ProfileUiState())
+    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
-    private val _savedUris = mutableStateOf<List<UriEntity>>(emptyList())
-    val savedUris: State<List<UriEntity>> = _savedUris
-
-    private val _likedPosts = mutableStateOf<List<PostDto>>(emptyList())
-    val likedPosts: State<List<PostDto>> = _likedPosts
+    private var refreshJob: Job? = null
 
     init {
-        if (tokenStore.isLoggedIn()) {
-            _state.value = _state.value.copy(isLoggedIn = true)
-            viewModelScope.launch {
-                _likedPosts.value =
-                    try {
-                        likesRepository.getLikedPosts()
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        emptyList()
-                    }
-            }
-        }
+        observeCreatedMemes()
+        refresh()
+    }
 
-        viewModelScope.launch {
-            uriRepository.getAllUris().collect {
-                _savedUris.value = it
-            }
+    fun onAction(action: ProfileAction) {
+        when (action) {
+            ProfileAction.Refresh -> refresh()
+            ProfileAction.MessageShown -> _uiState.update { state -> state.copy(message = null) }
+            is ProfileAction.AvatarSelected -> updateAvatar(action.imageUri)
+            is ProfileAction.TabSelected -> selectTab(action.tab)
         }
     }
 
-    fun checkLogin() {
-        val isLoggedInActually = tokenStore.isLoggedIn()
-        if (_state.value.isLoggedIn != isLoggedInActually) {
-            _state.value = _state.value.copy(isLoggedIn = isLoggedInActually)
-        }
-
-        if (isLoggedInActually) {
-            _state.value = _state.value.copy(isLoggedIn = true)
-            viewModelScope.launch {
-                _likedPosts.value =
-                    try {
-                        likesRepository.getLikedPosts()
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        emptyList()
-                    }
-            }
-        }
-
-        viewModelScope.launch {
-            uriRepository.getAllUris().collect {
-                _savedUris.value = it
-            }
-        }
-
-        viewModelScope.launch(Dispatchers.IO) {
-            val imageUri = updateProfileImageUseCase.getProfileImageUrl()?.toUri()
-
-            // Пробуем получить имя синхронно
-            val userNameFromBackend = getUserDataUseCase.getUserName()
-
-            // Если имя не получено, запускаем асинхронный запрос и ждём
-            val userName =
-                userNameFromBackend ?: withContext(Dispatchers.IO) {
-                    val deferred = CompletableDeferred<String>()
-
-                    VKID.instance.getUserData(
-                        object : VKIDGetUserCallback {
-                            override fun onSuccess(user: VKIDUser) {
-                                deferred.complete(user.firstName)
-                            }
-
-                            override fun onFail(fail: VKIDGetUserFail) {
-                                deferred.complete("") // или какое-то значение по умолчанию
-                            }
-                        },
-                    )
-
-                    deferred.await()
+    private fun observeCreatedMemes() {
+        repository
+            .observeCreatedMemes()
+            .onEach { memes ->
+                _uiState.update { state ->
+                    state.copy(createdMemes = memes.map { meme -> meme.toUiModel() })
                 }
+            }.catch { exception ->
+                if (exception is CancellationException) throw exception
+                _uiState.update { state -> state.copy(message = ProfileMessage.PROFILE_LOAD_FAILED) }
+            }.launchIn(viewModelScope)
+    }
 
-            _state.value =
-                _state.value.copy(
-                    userImageUri = imageUri,
-                    userName = userName,
-                )
+    private fun refresh() {
+        refreshJob?.cancel()
+        refreshJob =
+            viewModelScope.launch {
+                _uiState.update { state -> state.copy(isLoading = true) }
+
+                try {
+                    val snapshot = loadProfileUseCase()
+                    val loadedAccount = snapshot.account.toUiModel()
+
+                    _uiState.update { state ->
+                        val currentAccount = state.account as? ProfileAccountUiModel.Authenticated
+                        val account =
+                            if (
+                                state.isAvatarUpdating &&
+                                currentAccount != null &&
+                                loadedAccount is ProfileAccountUiModel.Authenticated
+                            ) {
+                                loadedAccount.copy(avatarUrl = currentAccount.avatarUrl)
+                            } else {
+                                loadedAccount
+                            }
+
+                        state.copy(
+                            isLoading = false,
+                            account = account,
+                            selectedTab =
+                                if (account is ProfileAccountUiModel.Guest) {
+                                    ProfileTab.CREATED
+                                } else {
+                                    state.selectedTab
+                                },
+                            likedMemes = snapshot.likedMemes.map { meme -> meme.toUiModel() },
+                            message =
+                                if (snapshot.likedMemesLoadFailed) {
+                                    ProfileMessage.LIKED_MEMES_LOAD_FAILED
+                                } else {
+                                    state.message
+                                },
+                        )
+                    }
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (_: Exception) {
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            account =
+                                if (state.account is ProfileAccountUiModel.Loading) {
+                                    ProfileAccountUiModel.Guest
+                                } else {
+                                    state.account
+                                },
+                            message = ProfileMessage.PROFILE_LOAD_FAILED,
+                        )
+                    }
+                }
+            }
+    }
+
+    private fun selectTab(tab: ProfileTab) {
+        _uiState.update { state ->
+            if (tab == ProfileTab.LIKED && !state.isLoggedIn) {
+                state
+            } else {
+                state.copy(selectedTab = tab)
+            }
         }
     }
 
-    fun selectTab(index: Int) {
-        _state.value = _state.value.copy(selectedTab = index)
-    }
+    private fun updateAvatar(imageUri: String) {
+        val currentState = _uiState.value
+        val currentAccount = currentState.account as? ProfileAccountUiModel.Authenticated ?: return
+        if (currentState.isAvatarUpdating) return
 
-    fun updateAvatar(uri: Uri) {
+        _uiState.update { state ->
+            state.copy(
+                account = currentAccount.copy(avatarUrl = imageUri),
+                isAvatarUpdating = true,
+            )
+        }
+
         viewModelScope.launch {
-            _state.value = _state.value.copy(userImageUri = uri)
-            updateProfileImageUseCase(uri)
+            try {
+                val remoteUrl = repository.updateAvatar(imageUri)
+                _uiState.update { state ->
+                    val account = state.account as? ProfileAccountUiModel.Authenticated
+                    state.copy(
+                        account = account?.copy(avatarUrl = remoteUrl) ?: state.account,
+                        isAvatarUpdating = false,
+                    )
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (_: Exception) {
+                _uiState.update { state ->
+                    val account = state.account as? ProfileAccountUiModel.Authenticated
+                    state.copy(
+                        account = account?.copy(avatarUrl = currentAccount.avatarUrl) ?: state.account,
+                        isAvatarUpdating = false,
+                        message = ProfileMessage.AVATAR_UPDATE_FAILED,
+                    )
+                }
+            }
         }
     }
 }

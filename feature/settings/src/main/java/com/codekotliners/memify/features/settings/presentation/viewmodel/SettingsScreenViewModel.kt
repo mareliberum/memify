@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codekotliners.memify.core.prefs.TokenStore
 import com.codekotliners.memify.core.theme.ThemeMode
-import com.codekotliners.memify.core.usecases.UpdateProfileImageUseCase
 import com.codekotliners.memify.features.settings.R
 import com.codekotliners.memify.features.settings.presentation.domain.UpdatePasswordResult
 import com.codekotliners.memify.features.settings.presentation.domain.WeakPasswordReason
@@ -25,7 +24,6 @@ import javax.inject.Inject
 class SettingsScreenViewModel @Inject constructor(
     private val updateUserNameUseCase: UpdateUserNameUseCase,
     private val updateUserPasswordUseCase: UpdateUserPasswordUseCase,
-    private val updateProfileImageUseCase: UpdateProfileImageUseCase,
     private val singOutUseCase: SignOutUseCase,
     private val sharedPreferences: SharedPreferences,
     private val tokenStore: TokenStore,

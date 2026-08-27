@@ -36,7 +36,7 @@ import com.codekotliners.memify.features.home.R
 import com.codekotliners.memify.core.models.Post
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.ui.components.AppScaffold
-import com.codekotliners.memify.features.auth.presentation.ui.AUTH_SUCCESS_EVENT
+import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
 import com.codekotliners.memify.features.home.presentation.state.PostsFeedTabState
 import com.codekotliners.memify.features.home.presentation.ui.components.EmptyFeed
 import com.codekotliners.memify.features.home.presentation.ui.components.ErrorScreen
@@ -44,7 +44,6 @@ import com.codekotliners.memify.features.home.presentation.ui.components.PostCar
 import com.codekotliners.memify.features.home.presentation.ui.components.PostCardHeader
 import com.codekotliners.memify.features.home.presentation.ui.components.PostCardImage
 import com.codekotliners.memify.features.home.presentation.viewModel.HomeScreenViewModel
-import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileViewModel
 import com.codekotliners.memify.core.navigation.entities.ImageType
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,7 +51,6 @@ import com.codekotliners.memify.core.navigation.entities.ImageType
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeScreenViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val loginResult =
@@ -62,7 +60,6 @@ fun HomeScreen(
 
     LaunchedEffect(loginResult) {
         if (loginResult == true) {
-            profileViewModel.checkLogin()
             viewModel.refresh()
             currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
         }

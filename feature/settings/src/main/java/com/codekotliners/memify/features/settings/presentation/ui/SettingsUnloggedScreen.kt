@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.ThemeMode
-import com.codekotliners.memify.features.auth.presentation.ui.AUTH_SUCCESS_EVENT
+import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
 
 @Composable
 fun SettingsUnLoggedScreen(navController: NavController, viewModel: SettingsScreenViewModel) {
