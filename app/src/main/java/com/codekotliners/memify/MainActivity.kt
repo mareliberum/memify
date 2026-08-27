@@ -26,17 +26,27 @@ import com.codekotliners.memify.core.theme.surfaceLight
 import dagger.hilt.android.AndroidEntryPoint
 
 @Composable
-fun SetStatusBarBackground(window: Window, isDark: Boolean) {
+fun SetSystemBarsBackground(window: Window, isDark: Boolean) {
     val color = (if (isDark) surfaceDark else surfaceLight).toArgb()
+    val decor = window.decorView
+    val insetsController = WindowCompat.getInsetsController(window, decor)
+
+    SideEffect {
+        insetsController.isAppearanceLightStatusBars = !isDark
+        insetsController.isAppearanceLightNavigationBars = !isDark
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            @Suppress("DEPRECATION")
+            window.navigationBarColor = color
+        }
+    }
+
     when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM -> {
-            val decor = window.decorView
-
-            val insetsController = WindowCompat.getInsetsController(window, decor)
-
-            SideEffect {
-                insetsController.isAppearanceLightStatusBars = !isDark
-            }
             decor.setOnApplyWindowInsetsListener { view, insets ->
                 val inset = insets.getInsets(WindowInsets.Type.statusBars()).top
                 view.setPadding(view.paddingLeft, inset, view.paddingRight, view.paddingBottom)
@@ -95,7 +105,7 @@ class MainActivity : ComponentActivity() {
                     else -> isSystemInDarkTheme()
                 }
 
-            SetStatusBarBackground(window, themeKind)
+            SetSystemBarsBackground(window, themeKind)
 
             MemifyTheme(
                 dynamicColor = false,
