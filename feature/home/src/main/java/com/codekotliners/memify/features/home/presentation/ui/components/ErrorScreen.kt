@@ -28,13 +28,13 @@ internal fun ErrorScreen(
 ) {
     val title =
         when (errorType) {
-            HomeErrorUiModel.NETWORK -> stringResource(R.string.network_error_title)
-            HomeErrorUiModel.UNKNOWN -> stringResource(R.string.unknown_error_title)
+            HomeErrorUiModel.Network -> stringResource(R.string.network_error_title)
+            HomeErrorUiModel.Unknown -> stringResource(R.string.unknown_error_title)
         }
     val description =
         when (errorType) {
-            HomeErrorUiModel.NETWORK -> stringResource(R.string.network_error_message)
-            HomeErrorUiModel.UNKNOWN -> stringResource(R.string.unknown_error_message)
+            HomeErrorUiModel.Network -> stringResource(R.string.network_error_message)
+            HomeErrorUiModel.Unknown -> stringResource(R.string.unknown_error_message)
         }
 
     FeedStateCard(

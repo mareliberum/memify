@@ -90,8 +90,8 @@ class HomeViewModel @Inject constructor(
                         }
                     }
 
-                    HomeFeedResult.NetworkFailure -> handleLoadFailure(HomeErrorUiModel.NETWORK, hasContent)
-                    HomeFeedResult.UnknownFailure -> handleLoadFailure(HomeErrorUiModel.UNKNOWN, hasContent)
+                    HomeFeedResult.NetworkFailure -> handleLoadFailure(HomeErrorUiModel.Network, hasContent)
+                    HomeFeedResult.UnknownFailure -> handleLoadFailure(HomeErrorUiModel.Unknown, hasContent)
                 }
             }
     }
@@ -104,7 +104,7 @@ class HomeViewModel @Inject constructor(
             state.copy(
                 feed = if (keepContent) state.feed else HomeFeedUiModel.Error(error),
                 isRefreshing = false,
-                message = if (keepContent) HomeMessage.FEED_REFRESH_FAILED else state.message,
+                message = if (keepContent) HomeMessage.FeedRefreshFailed else state.message,
             )
         }
     }
@@ -121,7 +121,7 @@ class HomeViewModel @Inject constructor(
             try {
                 when (val result = toggleHomePostLikeUseCase(postId)) {
                     ToggleHomePostLikeResult.AuthenticationRequired -> {
-                        _uiState.update { state -> state.copy(navigation = HomeNavigation.AUTH) }
+                        _uiState.update { state -> state.copy(navigation = HomeNavigation.Auth) }
                     }
 
                     is ToggleHomePostLikeResult.Updated -> {
@@ -139,7 +139,7 @@ class HomeViewModel @Inject constructor(
             } catch (exception: CancellationException) {
                 throw exception
             } catch (_: Exception) {
-                _uiState.update { state -> state.copy(message = HomeMessage.LIKE_UPDATE_FAILED) }
+                _uiState.update { state -> state.copy(message = HomeMessage.LikeUpdateFailed) }
             } finally {
                 _uiState.update { state ->
                     state.copy(pendingLikePostIds = state.pendingLikePostIds - postId)

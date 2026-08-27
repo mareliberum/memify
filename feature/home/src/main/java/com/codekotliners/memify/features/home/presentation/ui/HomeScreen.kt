@@ -49,8 +49,8 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val messageText =
         when (state.message) {
-            HomeMessage.FEED_REFRESH_FAILED -> stringResource(R.string.feed_refresh_failed)
-            HomeMessage.LIKE_UPDATE_FAILED -> stringResource(R.string.like_update_failed)
+            HomeMessage.FeedRefreshFailed -> stringResource(R.string.feed_refresh_failed)
+            HomeMessage.LikeUpdateFailed -> stringResource(R.string.like_update_failed)
             null -> null
         }
 
@@ -70,7 +70,7 @@ fun HomeScreen(
 
     LaunchedEffect(state.navigation) {
         when (state.navigation) {
-            HomeNavigation.AUTH -> {
+            HomeNavigation.Auth -> {
                 viewModel.onAction(HomeAction.NavigationHandled)
                 navController.navigate(NavRoutes.Auth.route)
             }
