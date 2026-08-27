@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,14 +40,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.codekotliners.memify.features.passwordrecovery.R
 import com.codekotliners.memify.features.passwordrecovery.presentation.viewmodel.PasswordRecoveryViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordRecoveryScreen(
-    navController: NavHostController,
+    onBackClick: () -> Unit,
     viewModel: PasswordRecoveryViewModel = hiltViewModel(),
 ) {
     Scaffold(
@@ -61,7 +59,7 @@ fun PasswordRecoveryScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.go_backBtn),
@@ -163,5 +161,5 @@ fun EmailForm(sendRecoveryCodeBtnClick: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewPasswordRecoveryScreen() {
-    PasswordRecoveryScreen(navController = NavHostController(LocalContext.current))
+    PasswordRecoveryScreen(onBackClick = {})
 }

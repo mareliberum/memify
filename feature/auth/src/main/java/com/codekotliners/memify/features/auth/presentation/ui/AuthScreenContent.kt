@@ -33,18 +33,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.codekotliners.memify.features.auth.R
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.LocalExtraColors
 import com.codekotliners.memify.core.theme.authButton
 import com.codekotliners.memify.core.theme.registerButton
 import com.codekotliners.memify.core.theme.suggestNewAccount
+import com.codekotliners.memify.features.auth.R
 
 @Composable
 fun AuthScreenContent(
-    navController: NavController,
     webClientId: String,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToRegister: () -> Unit,
     onGoogleLauncherClick: () -> Unit,
     onLogInWithGoogle: (String) -> Unit,
 ) {
@@ -90,7 +89,8 @@ fun AuthScreenContent(
             verticalArrangement = Arrangement.Bottom,
         ) {
             LogInMethods(
-                navController = navController,
+                onNavigateToLogin = onNavigateToLogin,
+                onNavigateToRegister = onNavigateToRegister,
                 onGoogleLauncherClick = onGoogleLauncherClick,
             )
             GoogleSignInHandler(webClientId = webClientId) { tokenId -> onLogInWithGoogle(tokenId) }
@@ -100,7 +100,8 @@ fun AuthScreenContent(
 
 @Composable
 fun LogInMethods(
-    navController: NavController,
+    onNavigateToLogin: () -> Unit,
+    onNavigateToRegister: () -> Unit,
     onGoogleLauncherClick: () -> Unit,
 ) {
     Column(
@@ -120,7 +121,7 @@ fun LogInMethods(
             text = stringResource(R.string.login_mail_button),
             icon = painterResource(id = R.drawable.mail_icon),
             buttonColor = LocalExtraColors.current.authButtons.mail,
-            onClick = { navController.navigateToEmailLogin() },
+            onClick = onNavigateToLogin,
         )
 
         Spacer(
@@ -130,7 +131,7 @@ fun LogInMethods(
         )
 
         NoAccountSection(
-            onRegisterClick = { navController.navigateToRegister() },
+            onRegisterClick = onNavigateToRegister,
         )
     }
 }
@@ -206,7 +207,3 @@ fun AuthButton(
         }
     }
 }
-
-private fun NavController.navigateToEmailLogin() = navigate(NavRoutes.Login.route)
-
-private fun NavController.navigateToRegister() = navigate(NavRoutes.Register.route)

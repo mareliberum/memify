@@ -24,10 +24,8 @@
     <string name="delete_text_action">Удалить</string>
     <string name="done_editing_action">Готово</string>
     <string name="outline_text_action">Обводка</string>
+    <string name="rotate_text_action">Повернуть текст</string>
     <string name="align_left_action">По левому краю</string>
     <string name="align_center_action">По центру</string>
     <string name="align_right_action">По правому краю</string>
-    <string name="exit_confirmation_title">Прекратить редактирование?</string>
-    <string name="exit_confirmation_message">Все изменения на канвасе будут потеряны.</string>
-    <string name="exit_confirmation_confirm">Выйти</string>
 </resources>

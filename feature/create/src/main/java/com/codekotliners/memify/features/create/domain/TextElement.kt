@@ -15,6 +15,7 @@ data class TextElement(
     val fontFamily: FontFamily,
     val fontWeight: FontWeight,
     val position: Offset,
+    val rotationDegrees: Float = 0f,
     val textAlign: TextAlign = TextAlign.Center,
     val hasOutline: Boolean = false,
     override val id: Long = System.currentTimeMillis(),

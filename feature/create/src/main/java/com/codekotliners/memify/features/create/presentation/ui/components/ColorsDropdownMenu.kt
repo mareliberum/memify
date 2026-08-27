@@ -153,7 +153,15 @@ private fun CustomColorSwatch(onClick: () -> Unit) {
                     .clip(CircleShape)
                     .background(
                         Brush.sweepGradient(
-                            listOf(Color.Red, Color.Yellow, Color.Green, Color.Cyan, Color.Blue, Color.Magenta, Color.Red),
+                            listOf(
+                                Color.Red,
+                                Color.Yellow,
+                                Color.Green,
+                                Color.Cyan,
+                                Color.Blue,
+                                Color.Magenta,
+                                Color.Red,
+                            ),
                         ),
                     ).border(1.dp, Color.Gray.copy(alpha = 0.4f), CircleShape),
         )
@@ -211,7 +219,10 @@ private fun ColorPickerDialog(
 
                 Spacer(Modifier.height(16.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
                     Box(
                         modifier =
                             Modifier

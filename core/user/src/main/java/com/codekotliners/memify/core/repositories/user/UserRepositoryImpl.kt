@@ -15,8 +15,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import javax.inject.Inject
 
-
-
 class UserRepositoryImpl @Inject constructor(
     private val httpClient: HttpClient,
     private val tokenStore: TokenStore,
@@ -66,20 +64,6 @@ class UserRepositoryImpl @Inject constructor(
             Response.Failure(e)
         }
 
-    override suspend fun getUserPhotoUrl(): Response<String?> =
-        try {
-            Response.Success(fetchMe().photoUrl)
-        } catch (e: Exception) {
-            Response.Failure(e)
-        }
-
-    override suspend fun getUserName(): Response<String?> =
-        try {
-            Response.Success(fetchMe().username)
-        } catch (e: Exception) {
-            Response.Failure(e)
-        }
-
     override suspend fun getUid(): Response<String?> = Response.Success(tokenStore.getUserId())
 
     override suspend fun getUserDataByUid(uid: String): Response<Map<String, Any>> =
@@ -101,11 +85,5 @@ class UserRepositoryImpl @Inject constructor(
             )
         } catch (e: Exception) {
             Response.Failure(e)
-        }
-
-    private suspend fun fetchMe(): UserDto =
-        httpClient.authorizedRequest(tokenStore) {
-            method = HttpMethod.Get
-            url(ApiConfig.baseUrl + "users/me")
         }
 }

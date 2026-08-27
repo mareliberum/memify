@@ -32,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,20 +42,19 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.codekotliners.memify.features.passwordupdate.R
 import com.codekotliners.memify.features.passwordupdate.presentation.viewmodel.NewPasswordScreenViewModel
 
 @Composable
 fun NewPasswordScreen(
-    navController: NavHostController,
+    onBackClick: () -> Unit,
     viewModel: NewPasswordScreenViewModel = hiltViewModel(),
 ) {
     var password by remember { mutableStateOf(TextFieldValue()) }
     var passwordVisible by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { NewPasswordTopBar(navController) },
+        topBar = { NewPasswordTopBar(onBackClick) },
         modifier = Modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0.dp),
     ) { paddingValues ->
@@ -72,7 +70,7 @@ fun NewPasswordScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NewPasswordTopBar(navController: NavHostController) {
+private fun NewPasswordTopBar(onBackClick: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -81,7 +79,7 @@ private fun NewPasswordTopBar(navController: NavHostController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.back),
@@ -213,5 +211,5 @@ private fun ConfirmPasswordButton(enabled: Boolean) {
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewNewPasswordScreen() {
-    NewPasswordScreen(navController = NavHostController(LocalContext.current))
+    NewPasswordScreen(onBackClick = {})
 }

@@ -1,20 +1,16 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("org.jlleitschuh.gradle.ktlint") version "12.2.0"
-    id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
-    id("com.vk.vkompose") version "0.6.2"
+    id("memify.android.application")
+    id("memify.android.compose")
+    id("memify.android.hilt")
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+    id("com.vk.vkompose") version "0.8.0"
     id("vkid.manifest.placeholders")
 }
 android {
     namespace = "com.codekotliners.memify"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.codekotliners.memify"
-        minSdk = 25
-        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -33,57 +29,46 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-        isCoreLibraryDesugaringEnabled = true
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
-    }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes.add("/META-INF/AL2.0")
+            excludes.add("/META-INF/LGPL2.1")
         }
     }
-    ktlint {
-        debug = true
-        verbose = true
-    }
+}
+
+ktlint {
+    debug = true
+    verbose = true
 }
 
 dependencies {
     // Core modules
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:database"))
-    implementation(project(":core:network"))
-    implementation(project(":core:prefs"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:ui"))
-    implementation(project(":core:user"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.database)
+    implementation(projects.core.network)
+    implementation(projects.core.prefs)
+    implementation(projects.core.navigation)
+    implementation(projects.core.ui)
+    implementation(projects.core.user)
 
     // Feature modules
-    implementation(project(":feature:confirmation"))
-    implementation(project(":feature:passwordrecovery"))
-    implementation(project(":feature:passwordupdate"))
-    implementation(project(":feature:viewer"))
-    implementation(project(":feature:auth"))
-    implementation(project(":feature:templates"))
-    implementation(project(":feature:settings"))
-    implementation(project(":feature:profile"))
-    implementation(project(":feature:create"))
-    implementation(project(":feature:home"))
+    implementation(projects.feature.confirmation)
+    implementation(projects.feature.passwordrecovery)
+    implementation(projects.feature.passwordupdate)
+    implementation(projects.feature.viewer)
+    implementation(projects.feature.auth)
+    implementation(projects.feature.templates)
+    implementation(projects.feature.settings)
+    implementation(projects.feature.profile)
+    implementation(projects.feature.create)
+    implementation(projects.feature.home)
 
     // Androidx Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
 
     // Room Database
@@ -109,10 +94,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -127,13 +108,12 @@ dependencies {
     implementation(libs.kotlinx.collections.immutable)
 
     // VKID
-    implementation("com.vk.id:vkid:2.5.1")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.vk.id:onetap-compose:2.5.1")
-    implementation("com.vk.id:vk-sdk-support:2.5.1")
-    implementation("com.vk:android-sdk-core:4.1.0")
-    implementation("com.vk:android-sdk-api:4.1.0")
+    implementation(libs.vkid.core)
+    implementation(libs.okhttp)
+    implementation(libs.vkid.onetap.compose)
+    implementation(libs.vkid.sdk.support)
+    implementation(libs.vk.android.sdk.core)
+    implementation(libs.vk.android.sdk.api)
 }
 
 vkompose {

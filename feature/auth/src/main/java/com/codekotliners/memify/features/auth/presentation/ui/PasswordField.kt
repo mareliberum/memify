@@ -27,6 +27,7 @@ fun PasswordField(
     label: String,
     password: String,
     isError: Boolean,
+    singleLine: Boolean = false,
     onPasswordChanged: (String) -> Unit,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -39,6 +40,7 @@ fun PasswordField(
             onPasswordChanged(it)
         },
         label = { Text(label) },
+        singleLine = singleLine,
         visualTransformation = if (passwordVisible) VisualTransformation.None else passwordVisualTransformation,
         trailingIcon = {
             Box(

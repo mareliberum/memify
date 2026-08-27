@@ -25,9 +25,9 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
 
-// Тот же текст, что и network_errormessage в strings.xml этого модуля — используем здесь напрямую,
+// Тот же текст, что и templates_network_error_message в strings.xml этого модуля — используем здесь напрямую,
 // т.к. у ViewModel нет Context для getString().
-private const val NETWORK_ERROR_MESSAGE = "Ошибка во время загрузки. Проверьте подключение к сети"
+private const val NETWORK_ERROR_MESSAGE = "Проверьте подключение к сети и попробуйте ещё раз"
 
 @HiltViewModel
 class TemplatesFeedViewModel @Inject constructor(
@@ -36,8 +36,8 @@ class TemplatesFeedViewModel @Inject constructor(
     private val _pageState = MutableStateFlow(TemplatesPageState(refreshing = false, selectedTab = Tab.BEST))
     val pageState: StateFlow<TemplatesPageState> = _pageState
 
-    // that variable is for view model only! to handle bug with pulltorefresh widget
-    private var refreshing = false
+    private val loadingTabs = mutableSetOf<Tab>()
+    private val refreshingTabs = mutableSetOf<Tab>()
 
     val limitPerRequest: Long = 30
 
@@ -88,53 +88,59 @@ class TemplatesFeedViewModel @Inject constructor(
         }
     }
 
-    fun startRefresh() {
-        refreshing = true
-        _pageState.update { it.copy(refreshing = true) }
-    }
-
-    fun finishRefresh() {
-        refreshing = false
-        viewModelScope.launch {
-            delay(200)
-            _pageState.update { it.copy(refreshing = false) }
-        }
-    }
-
     fun refresh() {
-        startRefresh()
-        loadDataForTab(_pageState.value.selectedTab)
+        loadDataForTab(_pageState.value.selectedTab, refresh = true)
     }
 
     fun selectTab(tab: Tab) {
-        _pageState.update { it.copy(selectedTab = tab) }
-        if (tab == Tab.FAVOURITE) {
-            refresh()
-        } else {
+        _pageState.update {
+            it.copy(
+                selectedTab = tab,
+                refreshing = tab in refreshingTabs,
+            )
+        }
+        if (_pageState.value.getTabState(tab) is TabState.None) {
             loadDataForTab(tab)
         }
     }
 
-    @Suppress("detekt.LongMethod")
     fun loadDataForTab(tab: Tab) {
-        val currentState = _pageState.value.getCurrentTabState()
-        if (currentState is TabState.Loading) {
+        loadDataForTab(tab, refresh = false)
+    }
+
+    @Suppress("detekt.LongMethod", "detekt.CyclomaticComplexMethod")
+    private fun loadDataForTab(
+        tab: Tab,
+        refresh: Boolean,
+    ) {
+        val currentState = _pageState.value.getTabState(tab)
+        if (tab in loadingTabs) {
             return
         }
-        if (!refreshing &&
+        if (!refresh &&
             currentState is TabState.Content &&
             (currentState.isLoadingMore || currentState.reachedEnd)
         ) {
             return
         }
 
-        if (refreshing) {
-            _pageState.update { it.updatedCurrentTabState(TabState.Loading) }
+        loadingTabs += tab
+        if (refresh) {
+            refreshingTabs += tab
+        }
+
+        if (refresh || currentState !is TabState.Content) {
+            _pageState.update {
+                it.updatedTabState(tab, TabState.Loading).copy(
+                    refreshing = it.selectedTab in refreshingTabs,
+                )
+            }
         } else {
             _pageState.update {
-                it.updatedCurrentTabState(
+                it.updatedTabState(
+                    tab,
                     TabState.Content(
-                        it.getTemplatesOfSelectedState(),
+                        it.getTemplatesByState(currentState),
                         true,
                         false,
                     ),
@@ -155,16 +161,16 @@ class TemplatesFeedViewModel @Inject constructor(
                     val templatesFlow =
                         when (tab) {
                             Tab.BEST ->
-                                repository.getBestTemplates(limit = limitPerRequest, refresh = refreshing)
+                                repository.getBestTemplates(limit = limitPerRequest, refresh = refresh)
 
                             Tab.NEW ->
-                                repository.getNewTemplates(limit = limitPerRequest, refresh = refreshing)
+                                repository.getNewTemplates(limit = limitPerRequest, refresh = refresh)
 
                             Tab.FAVOURITE ->
-                                repository.getFavouriteTemplates(limit = limitPerRequest, refresh = refreshing)
+                                repository.getFavouriteTemplates(limit = limitPerRequest, refresh = refresh)
 
                             Tab.VK_IMAGES ->
-                                repository.getVkTemplates(limit = limitPerRequest, refresh = refreshing)
+                                repository.getVkTemplates(limit = limitPerRequest, refresh = refresh)
                         }
                     emitAll(templatesFlow)
                 }
@@ -172,33 +178,30 @@ class TemplatesFeedViewModel @Inject constructor(
             val buffer = mutableListOf<Template>()
             dataFlow
                 .onEmpty {
-                    if (currentState is TabState.Content) {
-                        if (currentState.templates.isEmpty()) {
-                            _pageState.update {
-                                it.updatedCurrentTabState(
-                                    TabState.Empty,
-                                )
-                            }
-                        } else {
-                            _pageState.update {
-                                it.updatedCurrentTabState(
-                                    TabState.Content(
-                                        it.getTemplatesOfSelectedState(),
-                                        false,
-                                        true,
-                                    ),
-                                )
-                            }
+                    if (!refresh && currentState is TabState.Content && currentState.templates.isNotEmpty()) {
+                        _pageState.update {
+                            it.updatedTabState(
+                                tab,
+                                TabState.Content(
+                                    currentState.templates,
+                                    false,
+                                    true,
+                                ),
+                            )
                         }
                     } else {
                         _pageState.update {
-                            it.updatedCurrentTabState(
+                            it.updatedTabState(
+                                tab,
                                 TabState.Empty,
                             )
                         }
                     }
                 }.catch { e ->
-                    var errorType =
+                    if (e is CancellationException) {
+                        throw e
+                    }
+                    val errorType =
                         when (e) {
                             is UnauthorizedActionException -> ErrorType.NEED_LOGIN
                             is VKUnauthorizedActionException -> ErrorType.NEED_LINK_VK
@@ -207,7 +210,7 @@ class TemplatesFeedViewModel @Inject constructor(
                         }
 
                     _pageState.update {
-                        it.updatedCurrentTabState(TabState.Error(errorType))
+                        it.updatedTabState(tab, TabState.Error(errorType))
                     }
                 }.collect { template ->
                     buffer += template
@@ -215,14 +218,31 @@ class TemplatesFeedViewModel @Inject constructor(
 
             if (buffer.isNotEmpty()) {
                 _pageState.update {
-                    it.updatedCurrentContent(
+                    it.updatedTabContent(
+                        tab,
                         buffer.toList(),
                         false,
                     )
                 }
             }
 
-            finishRefresh()
+            finishLoading(tab, refresh)
+        }
+    }
+
+    private fun finishLoading(
+        tab: Tab,
+        refresh: Boolean,
+    ) {
+        loadingTabs -= tab
+        if (refresh) {
+            refreshingTabs -= tab
+        }
+        viewModelScope.launch {
+            delay(200)
+            _pageState.update {
+                it.copy(refreshing = it.selectedTab in refreshingTabs)
+            }
         }
     }
 }

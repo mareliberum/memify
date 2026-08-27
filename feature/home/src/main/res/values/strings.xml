@@ -1,8 +1,17 @@
 <resources>
     <string name="memify">Memify</string>
-    <string name="popular_tab_name">Популярные</string>
-    <string name="new_tab_name">Новые</string>
-    <string name="network_errormessage">Ошибка во время загрузки. Проверьте подключение к сети</string>
-    <string name="unknown_error_message">Упс, что-то пошло не так, попробуйте позже</string>
-    <string name="empty_templates_tab_message">Кажется, здесь ничего нет</string>
+    <string name="network_error_title">Не удалось загрузить ленту</string>
+    <string name="network_error_message">Проверьте подключение к интернету и попробуйте ещё раз.</string>
+    <string name="unknown_error_title">Что-то пошло не так</string>
+    <string name="unknown_error_message">Не удалось обновить публикации. Попробуйте ещё раз через пару секунд.</string>
+    <string name="retry_feed">Попробовать снова</string>
+    <string name="empty_feed_title">Пока нет публикаций</string>
+    <string name="empty_feed_message">Новые публикации появятся здесь. Потяни экран вниз, чтобы обновить ленту.</string>
+    <string name="feed_refresh_failed">Не удалось обновить ленту</string>
+    <string name="like_update_failed">Не удалось изменить лайк</string>
+    <string name="unknown_author">Неизвестный автор</string>
+    <string name="author_avatar_description">Аватар автора %1$s</string>
+    <string name="like_post">Поставить лайк</string>
+    <string name="unlike_post">Убрать лайк</string>
+    <string name="post_image_description">Изображение публикации</string>
 </resources>

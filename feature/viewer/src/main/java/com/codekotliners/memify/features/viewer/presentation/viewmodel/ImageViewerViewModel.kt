@@ -16,12 +16,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.Coil
 import coil.request.ImageRequest
+import com.codekotliners.memify.core.common.Response
 import com.codekotliners.memify.core.repositories.MemeRepository
 import com.codekotliners.memify.core.usecases.PublishImageUseCase
 import com.codekotliners.memify.features.viewer.R
 import com.codekotliners.memify.core.repositories.UriRepository
 import com.codekotliners.memify.features.viewer.domain.model.GenericImage
-import com.codekotliners.memify.core.navigation.entities.ImageType
+import com.codekotliners.memify.features.viewer.domain.model.ImageType
 import com.codekotliners.memify.features.viewer.domain.repository.ImageRepository
 import com.codekotliners.memify.features.viewer.presentation.state.ErrorType
 import com.codekotliners.memify.features.viewer.presentation.state.ImageState
@@ -52,6 +53,9 @@ class ImageViewerViewModel @Inject constructor(
 
     private val _downloadImageEvent = MutableSharedFlow<Uri>()
     val downloadImageEvent = _downloadImageEvent.asSharedFlow()
+
+    private val _imagePublishedEvent = MutableSharedFlow<Unit>()
+    val imagePublishedEvent = _imagePublishedEvent.asSharedFlow()
 
     private val _imageState = MutableStateFlow<ImageState>(ImageState.None)
     val imageState: StateFlow<ImageState> = _imageState
@@ -102,7 +106,15 @@ class ImageViewerViewModel @Inject constructor(
                 val width = curState.bitmap.width
                 Log.d("test", "publishing image $uri")
 
-                publishImageUseCase(uri, height, width)
+                when (val response = publishImageUseCase(uri, height, width)) {
+                    is Response.Success -> {
+                        if (response.data) {
+                            _imagePublishedEvent.emit(Unit)
+                        }
+                    }
+                    is Response.Failure -> Log.e("test", response.error.message, response.error)
+                    Response.Loading -> Unit
+                }
             } catch (e: CancellationException) {
                 Log.d("test", "publishing process canceled when quiting viewModel ")
             } catch (e: Exception) {

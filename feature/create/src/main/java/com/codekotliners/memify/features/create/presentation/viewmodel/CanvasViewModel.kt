@@ -23,7 +23,10 @@ import com.codekotliners.memify.features.create.domain.ColoredLine
 import com.codekotliners.memify.features.create.domain.TextElement
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlin.math.cos
+import kotlin.math.sin
 
+@Suppress("detekt.TooManyFunctions")
 @Stable
 @HiltViewModel
 open class CanvasViewModel @Inject constructor() : ViewModel() {
@@ -267,15 +270,22 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun transformText(elementId: Long, positionDelta: Offset, zoom: Float) {
+    fun transformText(
+        elementId: Long,
+        positionDelta: Offset,
+        zoom: Float,
+        rotationDelta: Float,
+    ) {
         val index = canvasElements.indexOfFirst { it.id == elementId }
         if (index < 0) return
         val existing = canvasElements[index] as? TextElement ?: return
         val newSize = (existing.size * zoom).coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE)
+        val positionDeltaInCanvas = rotateOffset(positionDelta, existing.rotationDegrees)
         canvasElements[index] =
             existing.copy(
-                position = existing.position + positionDelta,
+                position = existing.position + positionDeltaInCanvas,
                 size = newSize,
+                rotationDegrees = normalizeRotation(existing.rotationDegrees + rotationDelta),
             )
         if (selectedElementId == elementId) {
             currentTextSize.floatValue = newSize
@@ -291,6 +301,16 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
             existing.copy(
                 position = existing.position + positionDelta,
                 scale = newScale,
+            )
+    }
+
+    fun rotateText(elementId: Long, rotationDelta: Float) {
+        val index = canvasElements.indexOfFirst { it.id == elementId }
+        if (index < 0) return
+        val existing = canvasElements[index] as? TextElement ?: return
+        canvasElements[index] =
+            existing.copy(
+                rotationDegrees = normalizeRotation(existing.rotationDegrees + rotationDelta),
             )
     }
 
@@ -350,5 +370,19 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         private const val DUPLICATE_OFFSET_PX = 28f
         private const val MIN_DRAWING_SCALE = 0.2f
         private const val MAX_DRAWING_SCALE = 6f
+        private const val FULL_ROTATION_DEGREES = 360f
+
+        private fun normalizeRotation(rotationDegrees: Float): Float =
+            ((rotationDegrees % FULL_ROTATION_DEGREES) + FULL_ROTATION_DEGREES) % FULL_ROTATION_DEGREES
+
+        private fun rotateOffset(offset: Offset, rotationDegrees: Float): Offset {
+            val radians = Math.toRadians(rotationDegrees.toDouble())
+            val cosine = cos(radians).toFloat()
+            val sine = sin(radians).toFloat()
+            return Offset(
+                x = offset.x * cosine - offset.y * sine,
+                y = offset.x * sine + offset.y * cosine,
+            )
+        }
     }
 }

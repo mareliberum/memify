@@ -19,25 +19,35 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import com.codekotliners.memify.core.navigation.entities.TopLevelDestination
+import com.codekotliners.memify.core.prefs.ThemeMode
 import com.codekotliners.memify.core.theme.MemifyTheme
-import com.codekotliners.memify.core.theme.ThemeMode
 import com.codekotliners.memify.core.theme.surfaceDark
 import com.codekotliners.memify.core.theme.surfaceLight
-import com.codekotliners.memify.features.settings.presentation.viewmodel.SettingsScreenViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @Composable
-fun SetStatusBarBackground(window: Window, isDark: Boolean) {
+fun SetSystemBarsBackground(window: Window, isDark: Boolean) {
     val color = (if (isDark) surfaceDark else surfaceLight).toArgb()
+    val decor = window.decorView
+    val insetsController = WindowCompat.getInsetsController(window, decor)
+
+    SideEffect {
+        insetsController.isAppearanceLightStatusBars = !isDark
+        insetsController.isAppearanceLightNavigationBars = !isDark
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            @Suppress("DEPRECATION")
+            window.navigationBarColor = color
+        }
+    }
+
     when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM -> {
-            val decor = window.decorView
-
-            val insetsController = WindowCompat.getInsetsController(window, decor)
-
-            SideEffect {
-                insetsController.isAppearanceLightStatusBars = !isDark
-            }
             decor.setOnApplyWindowInsetsListener { view, insets ->
                 val inset = insets.getInsets(WindowInsets.Type.statusBars()).top
                 view.setPadding(view.paddingLeft, inset, view.paddingRight, view.paddingBottom)
@@ -78,17 +88,20 @@ fun SetStatusBarBackground(window: Window, isDark: Boolean) {
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val settingsViewModel: SettingsScreenViewModel by viewModels()
+    private val appThemeViewModel: AppThemeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val destination = intent?.extras?.getString("shortcut_destination")
+        val launchDestination =
+            ShortcutDestination.fromValue(
+                intent?.getStringExtra(SHORTCUT_DESTINATION_EXTRA),
+            )
 
         enableEdgeToEdge()
 
         setContent {
-            val themeMode by settingsViewModel.theme.collectAsState()
+            val themeMode by appThemeViewModel.themeMode.collectAsState()
             val themeKind =
                 when (themeMode) {
                     ThemeMode.DARK_MODE -> true
@@ -96,14 +109,32 @@ class MainActivity : ComponentActivity() {
                     else -> isSystemInDarkTheme()
                 }
 
-            SetStatusBarBackground(window, themeKind)
+            SetSystemBarsBackground(window, themeKind)
 
             MemifyTheme(
                 dynamicColor = false,
                 darkTheme = themeKind,
             ) {
-                App(destination)
+                App(launchDestination)
             }
         }
+    }
+}
+
+private const val SHORTCUT_DESTINATION_EXTRA = "shortcut_destination"
+
+private enum class ShortcutDestination(
+    val value: String,
+    val destination: TopLevelDestination,
+) {
+    CREATE(
+        value = "creation",
+        destination = TopLevelDestination.Create,
+    ),
+    ;
+
+    companion object {
+        fun fromValue(value: String?): TopLevelDestination? =
+            entries.firstOrNull { destination -> destination.value == value }?.destination
     }
 }

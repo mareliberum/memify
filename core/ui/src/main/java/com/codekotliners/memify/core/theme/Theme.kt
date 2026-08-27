@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import com.codekotliners.memify.core.ui.R
 
 private val lightScheme =
     lightColorScheme(
@@ -45,23 +44,6 @@ val LocalExtraColors =
             "No ExtraColors provided! Make sure to wrap your Composables in MemifyTheme.",
         )
     }
-
-enum class ThemeMode(
-    val resId: Int,
-) {
-    FOLLOW_SYSTEM(resId = R.string.system),
-    DARK_MODE(resId = R.string.dark),
-    LIGHT_MODE(resId = R.string.light),
-    ;
-
-    companion object {
-        fun fromString(value: String?): ThemeMode =
-            value?.let {
-                entries.find { it.name.equals(value, ignoreCase = true) }
-                    ?: FOLLOW_SYSTEM
-            } ?: FOLLOW_SYSTEM
-    }
-};
 
 @Composable
 fun MemifyTheme(

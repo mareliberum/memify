@@ -123,29 +123,12 @@
     <string name="try_again">Попробовать снова</string>
     <string name="cancel">Отмена</string>
     <string name="ok">Ok</string>
-    <string name="light">Светлая</string>
-    <string name="dark">Темная</string>
-    <string name="system">Системная</string>
-
     <string name="registration_error_email_already_used">Этот адресс электронной почты уже кем-то используется.</string>
-    <string name="link_vk_account_message">Привяжите Ваш аккаунт ВК в настройках, чтобы воспользоваться этой функцией</string>
 
     <string name="shortcut_short_label">Создать</string>
     <string name="shortcut_long_label">Создать новый мем</string>
     <string name="shortcut_disabled_message">Функция создания мема отсюда недоступна</string>
-    <string name="theme_title">Тема</string>
     <string name="meme_downloaded">Мем успешно загружен</string>
-
-    <string name="password_too_short">Пароль слишком короткий (минимум 8 символов)</string>
-    <string name="password_no_uppercase">Добавьте хотя бы одну заглавную букву</string>
-    <string name="password_no_digit">Добавьте хотя бы одну цифру</string>
-    <string name="password_no_special_char">Добавьте хотя бы один специальный символ</string>
-    <string name="passwords_not_match">Пароли не совпадают</string>
-    <string name="password_change_success">Пароль успешно изменён</string>
-    <string name="incorrect_current_password">Текущий пароль неверный</string>
-
-    <string name="new_name">Новое имя</string>
-    <string name="name_changed">Имя успешно изменено</string>
 
     <string name="saved">Сохраненные</string>
     <string name="Email">Почта</string>

@@ -1,508 +1,224 @@
 package com.codekotliners.memify.features.profile.presentation.ui
 
 import android.content.res.Configuration
-import android.net.Uri
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import com.codekotliners.memify.features.profile.R
-import com.codekotliners.memify.core.database.entities.UriEntity
-import com.codekotliners.memify.core.navigation.entities.NavRoutes
-import com.codekotliners.memify.core.network.models.PostDto
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codekotliners.memify.core.theme.MemifyTheme
 import com.codekotliners.memify.core.ui.components.AppScaffold
-import com.codekotliners.memify.core.ui.components.CenteredWidget
-import com.codekotliners.memify.core.ui.components.shimmerEffect
-import com.codekotliners.memify.features.auth.presentation.ui.AUTH_SUCCESS_EVENT
-import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileState
+import com.codekotliners.memify.features.profile.R
+import com.codekotliners.memify.features.profile.presentation.model.ProfileAccountUiModel
+import com.codekotliners.memify.features.profile.presentation.model.ProfileAction
+import com.codekotliners.memify.features.profile.presentation.model.ProfileMessage
+import com.codekotliners.memify.features.profile.presentation.model.ProfileTab
+import com.codekotliners.memify.features.profile.presentation.model.ProfileUiState
+import com.codekotliners.memify.features.profile.presentation.ui.components.CreatedMemeItem
+import com.codekotliners.memify.features.profile.presentation.ui.components.EmptyProfileSection
+import com.codekotliners.memify.features.profile.presentation.ui.components.LikedMemeItem
+import com.codekotliners.memify.features.profile.presentation.ui.components.ProfileFloatingActionButton
+import com.codekotliners.memify.features.profile.presentation.ui.components.ProfileSummaryCard
+import com.codekotliners.memify.features.profile.presentation.ui.components.ProfileTabs
+import com.codekotliners.memify.features.profile.presentation.ui.components.ProfileTopBar
 import com.codekotliners.memify.features.profile.presentation.viewmodel.ProfileViewModel
-import com.codekotliners.memify.features.templates.presentation.ui.components.ErrorLoadingItem
 import kotlinx.coroutines.launch
-import kotlin.math.min
-import androidx.core.net.toUri
 
 @Composable
 fun ProfileScreen(
-    navController: NavController,
+    refreshRequested: Boolean,
+    onRefreshHandled: () -> Unit,
+    onSettingsClick: (isAuthenticated: Boolean, displayName: String, avatarUrl: String?) -> Unit,
+    onLoginClick: () -> Unit,
+    bottomBar: @Composable () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val loginResult =
-        currentBackStackEntry
-            ?.savedStateHandle
-            ?.get<Boolean>(AUTH_SUCCESS_EVENT)
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val savedScrollState = rememberLazyStaggeredGridState()
+    val likedScrollState = rememberLazyStaggeredGridState()
+    val activeScrollState = state.activeScrollState(savedScrollState, likedScrollState)
+    val showScrollToTop by
+        remember(activeScrollState) {
+            derivedStateOf {
+                activeScrollState.firstVisibleItemIndex > LAST_PROFILE_HEADER_INDEX ||
+                    activeScrollState.firstVisibleItemScrollOffset > SCROLL_TO_TOP_THRESHOLD
+            }
+        }
+    val coroutineScope = rememberCoroutineScope()
+    val messageText =
+        when (state.message) {
+            ProfileMessage.PROFILE_LOAD_FAILED -> stringResource(R.string.profile_load_failed)
+            ProfileMessage.LIKED_MEMES_LOAD_FAILED -> stringResource(R.string.liked_memes_load_failed)
+            ProfileMessage.AVATAR_UPDATE_FAILED -> stringResource(R.string.avatar_update_failed)
+            null -> null
+        }
 
-    LaunchedEffect(Unit) {
-        viewModel.checkLogin()
-    }
-
-    LaunchedEffect(loginResult) {
-        if (loginResult == true) {
-            currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
+    LaunchedEffect(refreshRequested) {
+        if (refreshRequested) {
+            onRefreshHandled()
+            viewModel.onAction(ProfileAction.Refresh)
         }
     }
 
-    val state = viewModel.state.value
-    val scrollState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
-    val scrollOffset = rememberScrollOffset(scrollState)
-    val isExtended = scrollOffset >= 0.1f
-    val likedScrollState = rememberLazyStaggeredGridState()
-    val savedScrollState = rememberLazyStaggeredGridState()
+    LaunchedEffect(state.message, messageText) {
+        if (messageText != null) {
+            snackbarHostState.showSnackbar(messageText)
+            viewModel.onAction(ProfileAction.MessageShown)
+        }
+    }
 
     AppScaffold(
-        navController = navController,
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
-        topBar = { ProfileTopBar(navController, isLoggedIn = state.isLoggedIn) },
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            ProfileTopBar(
+                enabled = state.account !is ProfileAccountUiModel.Loading,
+                onSettingsClick = {
+                    onSettingsClick(
+                        state.isLoggedIn,
+                        state.displayName,
+                        state.avatarUrl,
+                    )
+                },
+            )
+        },
+        bottomBar = bottomBar,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             ProfileFloatingActionButton(
-                showFloatingBtn = !isExtended,
-                onScrollUpClick = {
+                visible = showScrollToTop,
+                onClick = {
                     coroutineScope.launch {
-                        scrollState.scrollToItem(0)
+                        activeScrollState.animateScrollToItem(0)
                     }
                 },
             )
         },
     ) { innerPadding ->
-        Column(
+        ProfileContent(
+            state = state,
+            savedScrollState = savedScrollState,
+            likedScrollState = likedScrollState,
+            onAction = viewModel::onAction,
+            onLoginClick = onLoginClick,
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .background(MaterialTheme.colorScheme.background),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
-        ) {
-            Box(modifier = Modifier.height(16.dp * scrollOffset))
-
-            ProfileExtended(
-                isExtended = isExtended,
-                scrollOffset = scrollOffset,
-                state = state,
-                onLoginClick = {
-                    navController.navigate(NavRoutes.Auth.route)
-                },
-                onAvatarClick = { uri -> viewModel.updateAvatar(uri) },
-            )
-
-            Box(modifier = Modifier.height(6.dp * scrollOffset))
-
-            FeedTabBar(
-                viewModel,
-                state = state,
-                onSelectTab = { index -> viewModel.selectTab(index) },
-                likedScrollState,
-                savedScrollState,
-            )
-        }
-    }
-}
-
-@Composable
-private fun rememberScrollOffset(scrollState: LazyGridState): Float =
-    remember {
-        derivedStateOf {
-            min(
-                1f,
-                1 - (
-                    scrollState.firstVisibleItemScrollOffset / 600f +
-                        scrollState.firstVisibleItemIndex
-                ),
-            )
-        }
-    }.value
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProfileTopBar(navController: NavController, isLoggedIn: Boolean) {
-    val route = if (isLoggedIn) NavRoutes.SettingsLogged.route else NavRoutes.SettingsUnlogged.route
-
-    CenterAlignedTopAppBar(
-        windowInsets = WindowInsets(0),
-        title = {
-            Text(
-                stringResource(R.string.profile),
-                style = MaterialTheme.typography.titleLarge,
-            )
-        },
-        actions = {
-            IconButton(
-                onClick = { navController.navigate(route) },
-            ) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = null,
-                )
-            }
-        },
-        expandedHeight = 48.dp,
-    )
-}
-
-@Composable
-private fun ProfileFloatingActionButton(
-    showFloatingBtn: Boolean,
-    onScrollUpClick: () -> Unit,
-) {
-    if (showFloatingBtn) {
-        FloatingActionButton(
-            onClick = onScrollUpClick,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-        ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowUp,
-                contentDescription = stringResource(R.string.up),
-            )
-        }
-    }
-}
-
-@Composable
-private fun ProfileExtended(
-    isExtended: Boolean,
-    scrollOffset: Float,
-    state: ProfileState,
-    onLoginClick: () -> Unit,
-    onAvatarClick: (Uri) -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        ProfileAvatar(
-            scrollOffset = scrollOffset,
-            state = state,
-            onClick = onAvatarClick,
+                    .padding(innerPadding),
         )
+    }
+}
 
-        Box(modifier = Modifier.height(20.dp * scrollOffset))
+@Composable
+private fun ProfileContent(
+    state: ProfileUiState,
+    savedScrollState: LazyStaggeredGridState,
+    likedScrollState: LazyStaggeredGridState,
+    onAction: (ProfileAction) -> Unit,
+    onLoginClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selectedTab = state.visibleSelectedTab()
+    val activeScrollState = state.activeScrollState(savedScrollState, likedScrollState)
 
-        if (isExtended) {
-            if (state.isLoggedIn) {
-                Text(state.userName)
-            } else {
-                Button(
-                    onClick = onLoginClick,
-                    shape = RoundedCornerShape(16.dp),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                        ),
-                ) {
-                    Text(
-                        stringResource(R.string.log_in_account),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Fixed(2),
+        state = activeScrollState,
+        verticalItemSpacing = 10.dp,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(start = 16.dp, top = 12.dp, end = 16.dp, bottom = 20.dp),
+        modifier = modifier.background(MaterialTheme.colorScheme.background),
+    ) {
+        item(
+            key = PROFILE_HEADER_KEY,
+            span = StaggeredGridItemSpan.FullLine,
+        ) {
+            ProfileSummaryCard(
+                state = state,
+                onLoginClick = onLoginClick,
+                onAvatarSelected = { imageUri ->
+                    onAction(ProfileAction.AvatarSelected(imageUri))
+                },
+            )
+        }
+
+        item(
+            key = PROFILE_TABS_KEY,
+            span = StaggeredGridItemSpan.FullLine,
+        ) {
+            ProfileTabs(
+                state = state,
+                onTabSelected = { tab -> onAction(ProfileAction.TabSelected(tab)) },
+            )
+        }
+
+        when (selectedTab) {
+            ProfileTab.CREATED -> {
+                if (state.createdMemes.isEmpty()) {
+                    item(
+                        key = EMPTY_CREATED_KEY,
+                        span = StaggeredGridItemSpan.FullLine,
+                    ) {
+                        EmptyProfileSection(
+                            icon = Icons.Default.Add,
+                            title = stringResource(R.string.empty_created_title),
+                            description = stringResource(R.string.empty_created_description),
+                        )
+                    }
+                } else {
+                    items(
+                        items = state.createdMemes,
+                        key = { meme -> "created_${meme.id}" },
+                    ) { meme ->
+                        CreatedMemeItem(meme)
+                    }
                 }
             }
-        }
-    }
-}
 
-@Composable
-private fun ProfileAvatar(
-    scrollOffset: Float,
-    state: ProfileState,
-    onClick: (Uri) -> Unit,
-) {
-    val pickMedia =
-        rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-            if (uri != null) {
-                Log.d("PhotoPicker", "Selected URI: $uri")
-                onClick(uri)
-            } else {
-                Log.d("PhotoPicker", "No media selected")
-            }
-        }
-
-    Box(
-        modifier =
-            Modifier
-                .size(100.dp * scrollOffset)
-                .clip(CircleShape)
-                .clickable(
-                    onClick = {
-                        if (state.isLoggedIn) {
-                            pickMedia.launch(
-                                PickVisualMediaRequest(PickVisualMedia.ImageOnly),
-                            )
-                        }
-                    },
-                ).border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    shape = CircleShape,
-                ).background(MaterialTheme.colorScheme.surfaceVariant),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (state.userImageUri != null) {
-            Image(
-                modifier = Modifier.fillMaxSize(),
-                painter =
-                    rememberAsyncImagePainter(
-                        model = state.userImageUri,
-                    ),
-                contentScale = ContentScale.Crop,
-                contentDescription = null,
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                modifier = Modifier.size(50.dp * scrollOffset),
-            )
-        }
-    }
-}
-
-@Composable
-private fun FeedTabBar(
-    viewModel: ProfileViewModel,
-    state: ProfileState,
-    onSelectTab: (Int) -> Unit,
-    likedScrollState: LazyStaggeredGridState,
-    savedScrollState: LazyStaggeredGridState,
-) {
-    val savedUris = viewModel.savedUris.value
-    val likedPosts = viewModel.likedPosts.value
-
-    val tabs =
-        if (state.isLoggedIn) {
-            listOf(
-                stringResource(R.string.created),
-                stringResource(R.string.liked),
-                // stringResource(R.string.published),
-                // stringResource(R.string.drafts),
-            )
-        } else {
-            listOf(
-                stringResource(R.string.created),
-                // stringResource(R.string.drafts),
-            )
-        }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        ScrollableTabRow(
-            selectedTabIndex = state.selectedTab,
-            contentColor = MaterialTheme.colorScheme.secondary,
-            containerColor = MaterialTheme.colorScheme.background,
-            edgePadding = 0.dp,
-            indicator = { tabPositions ->
-                TabRowDefaults.SecondaryIndicator(
-                    modifier =
-                        Modifier
-                            .tabIndicatorOffset(
-                                tabPositions[state.selectedTab],
-                            ).padding(
-                                vertical = 10.dp,
-                                horizontal = 16.dp,
-                            ),
-                    height = 1.dp,
-                    color = MaterialTheme.colorScheme.secondary,
-                )
-            },
-            divider = { },
-        ) {
-            tabs.forEachIndexed { index, title ->
-                Tab(
-                    selected = state.selectedTab == index,
-                    modifier = Modifier.padding(start = 4.dp),
-                    onClick = { onSelectTab(index) },
-                    text = {
-                        Text(title)
-                    },
-                )
-            }
-        }
-        if (state.isLoggedIn) {
-            when (state.selectedTab) {
-                0 -> SavedMemesGrid(savedUris = savedUris, scrollState = savedScrollState)
-                1 -> LikedMemesGrid(likedPosts = likedPosts, scrollState = likedScrollState)
-                // 2 -> {}
-                // 3 -> {}
-            }
-        } else {
-            when (state.selectedTab) {
-                0 -> SavedMemesGrid(savedUris = savedUris, scrollState = savedScrollState)
-                // 1 -> {}
-            }
-        }
-    }
-}
-
-@Composable
-fun SavedMemesGrid(
-    savedUris: List<UriEntity>,
-    scrollState: LazyStaggeredGridState,
-) {
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
-        state = scrollState,
-        verticalItemSpacing = 10.dp,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier =
-            Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxSize(),
-        contentPadding = PaddingValues(0.dp),
-    ) {
-        items(savedUris) { item ->
-            val imageUri = item.uri.toUri()
-
-            Card(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f),
-            ) {
-                Image(
-                    painter = rememberAsyncImagePainter(imageUri),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun LikedMemesGrid(
-    likedPosts: List<PostDto>,
-    scrollState: LazyStaggeredGridState,
-) {
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
-        state = scrollState,
-        verticalItemSpacing = 10.dp,
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier =
-            Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .fillMaxSize(),
-        contentPadding = PaddingValues(0.dp),
-    ) {
-        items(likedPosts) { post ->
-            Card(
-                modifier =
-                    Modifier
-                        .aspectRatio(post.width.toFloat() / post.height.toFloat())
-                        .fillMaxWidth(),
-            ) {
-                Box {
-                    val painter = rememberAsyncImagePainter(post.imageUrl)
-                    val state = painter.state
-
-                    Image(
-                        painter = painter,
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                    )
-
-                    when (state) {
-                        is AsyncImagePainter.State.Error -> {
-                            ErrorLoadingItem()
-                        }
-
-                        is AsyncImagePainter.State.Loading -> {
-                            CenteredWidget(
-                                modifier = Modifier.shimmerEffect(),
-                            ) {}
-                        }
-
-                        is AsyncImagePainter.State.Success,
-                        AsyncImagePainter.State.Empty,
-                        -> {
-                            Icon(
-                                painter = painterResource(R.drawable.template_like_on),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.error,
-                                modifier =
-                                    Modifier
-                                        .padding(2.dp)
-                                        .background(
-                                            brush =
-                                                Brush.radialGradient(
-                                                    colors = listOf(Color.Black.copy(alpha = 0.22f), Color.Transparent),
-                                                    center = Offset.Unspecified,
-                                                    radius = 46f,
-                                                ),
-                                            shape = CircleShape,
-                                        ).padding(4.dp)
-                                        .align(Alignment.TopEnd),
-                            )
-                        }
+            ProfileTab.LIKED -> {
+                if (state.likedMemes.isEmpty()) {
+                    item(
+                        key = EMPTY_LIKED_KEY,
+                        span = StaggeredGridItemSpan.FullLine,
+                    ) {
+                        EmptyProfileSection(
+                            icon = Icons.Default.Favorite,
+                            title = stringResource(R.string.empty_liked_title),
+                            description = stringResource(R.string.empty_liked_description),
+                        )
+                    }
+                } else {
+                    items(
+                        items = state.likedMemes,
+                        key = { meme -> "liked_${meme.id}" },
+                    ) { meme ->
+                        LikedMemeItem(meme)
                     }
                 }
             }
@@ -510,11 +226,50 @@ fun LikedMemesGrid(
     }
 }
 
-@Preview(name = "Light Mode", showSystemUi = true)
-@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES, showSystemUi = true)
+private fun ProfileUiState.visibleSelectedTab(): ProfileTab =
+    if (isLoggedIn) selectedTab else ProfileTab.CREATED
+
+private fun ProfileUiState.activeScrollState(
+    savedScrollState: LazyStaggeredGridState,
+    likedScrollState: LazyStaggeredGridState,
+): LazyStaggeredGridState =
+    if (visibleSelectedTab() == ProfileTab.LIKED) likedScrollState else savedScrollState
+
+@Preview(name = "Profile light", showSystemUi = true)
+@Preview(name = "Profile dark", uiMode = Configuration.UI_MODE_NIGHT_YES, showSystemUi = true)
 @Composable
-fun SettingsLoggedScreenPreview() {
+private fun ProfileScreenPreview() {
     MemifyTheme {
-        ProfileScreen(navController = NavController(LocalContext.current))
+        Scaffold(
+            topBar = { ProfileTopBar(onSettingsClick = {}) },
+            contentWindowInsets = WindowInsets(0),
+        ) { innerPadding ->
+            ProfileContent(
+                state =
+                    ProfileUiState(
+                        isLoading = false,
+                        account =
+                            ProfileAccountUiModel.Authenticated(
+                                displayName = "MemeMaker2011",
+                                avatarUrl = null,
+                            ),
+                    ),
+                savedScrollState = rememberLazyStaggeredGridState(),
+                likedScrollState = rememberLazyStaggeredGridState(),
+                onAction = {},
+                onLoginClick = {},
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+            )
+        }
     }
 }
+
+private const val LAST_PROFILE_HEADER_INDEX = 1
+private const val SCROLL_TO_TOP_THRESHOLD = 240
+private const val PROFILE_HEADER_KEY = "profile_header"
+private const val PROFILE_TABS_KEY = "profile_tabs"
+private const val EMPTY_CREATED_KEY = "empty_created"
+private const val EMPTY_LIKED_KEY = "empty_liked"

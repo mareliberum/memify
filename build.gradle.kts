@@ -4,10 +4,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.serialization) apply false
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17" apply false
-    id("com.google.dagger.hilt.android") version "2.50" apply false
     id("vkid.manifest.placeholders") version "1.1.0" apply true
     // Firebase полностью убран из проекта — плагины com.google.gms.google-services и
     // com.google.firebase.crashlytics больше не регистрируются вообще (раньше тут были

@@ -1,40 +1,19 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
+    id("memify.android.library")
+    id("memify.android.compose")
+    id("memify.android.hilt")
 }
 
 android {
     namespace = "com.codekotliners.memify.features.templates"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 25
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
-    }
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:network"))
-    implementation(project(":core:prefs"))
-    implementation(project(":core:ui"))
-    implementation(project(":feature:auth"))
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.network)
+    implementation(projects.core.prefs)
+    implementation(projects.core.ui)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.material3)
@@ -49,10 +28,7 @@ dependencies {
     implementation(libs.coil.base)
 
     // VK SDK — не Firebase, отдельная интеграция (см. пояснение в чате про ВК), не трогаем.
-    implementation("com.vk:android-sdk-core:4.1.0")
-    implementation("com.vk:android-sdk-api:4.1.0")
-    implementation("com.vk.id:vk-sdk-support:2.5.1")
-
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    implementation(libs.vk.android.sdk.core)
+    implementation(libs.vk.android.sdk.api)
+    implementation(libs.vkid.sdk.support)
 }

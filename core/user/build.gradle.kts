@@ -1,33 +1,15 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    id("com.google.devtools.ksp")
-    id("dagger.hilt.android.plugin")
+    id("memify.android.library")
+    id("memify.android.hilt")
 }
 
 android {
     namespace = "com.codekotliners.memify.core.user"
-    compileSdk = 35
-
-    defaultConfig {
-        minSdk = 25
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:common"))
-    implementation(project(":core:network"))
-    implementation(project(":core:prefs"))
-
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    implementation(projects.core.model)
+    implementation(projects.core.common)
+    implementation(projects.core.network)
+    implementation(projects.core.prefs)
 }

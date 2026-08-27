@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,17 +45,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.codekotliners.memify.features.confirmation.R
 import com.codekotliners.memify.features.confirmation.presentation.viewmodel.EmailCodeVerificationScreenViewModel
 
 @Composable
 fun EmailCodeVerificationScreen(
-    navController: NavHostController,
+    onBackClick: () -> Unit,
     viewModel: EmailCodeVerificationScreenViewModel = hiltViewModel(),
 ) {
     Scaffold(
-        topBar = { VerificationTopBar(navController) },
+        topBar = { VerificationTopBar(onBackClick) },
         modifier = Modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0.dp),
     ) { paddingValues ->
@@ -66,7 +64,7 @@ fun EmailCodeVerificationScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun VerificationTopBar(navController: NavHostController) {
+private fun VerificationTopBar(onBackClick: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Text(
@@ -75,7 +73,7 @@ private fun VerificationTopBar(navController: NavHostController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.go_backBtn),
@@ -210,5 +208,5 @@ fun CodeFromEmailForm(
 @Preview(showBackground = true)
 @Composable
 fun PreviewEmailScreenVerificationScreen() {
-    EmailCodeVerificationScreen(navController = NavHostController(LocalContext.current))
+    EmailCodeVerificationScreen(onBackClick = {})
 }
