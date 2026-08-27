@@ -9,8 +9,18 @@ plugins {
 }
 
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-val compileSdkVersion = libs.findVersion("compileSdk").get().requiredVersion.toInt()
-val minSdkVersion = libs.findVersion("minSdk").get().requiredVersion.toInt()
+val compileSdkVersion =
+    libs
+        .findVersion("compileSdk")
+        .get()
+        .requiredVersion
+        .toInt()
+val minSdkVersion =
+    libs
+        .findVersion("minSdk")
+        .get()
+        .requiredVersion
+        .toInt()
 val javaVersion = JavaVersion.toVersion(libs.findVersion("javaTarget").get().requiredVersion)
 
 extensions.configure<LibraryExtension> {

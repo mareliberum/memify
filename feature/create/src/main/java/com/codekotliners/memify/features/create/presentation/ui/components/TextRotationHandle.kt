@@ -121,12 +121,13 @@ private fun rotate(offset: Offset, rotationDegrees: Float): Offset {
 }
 
 private fun angleBetween(center: Offset, point: Offset): Float =
-    Math.toDegrees(
-        atan2(
-            y = point.y - center.y,
-            x = point.x - center.x,
-        ).toDouble(),
-    ).toFloat()
+    Math
+        .toDegrees(
+            atan2(
+                y = point.y - center.y,
+                x = point.x - center.x,
+            ).toDouble(),
+        ).toFloat()
 
 private fun shortestRotationDelta(previousAngle: Float, currentAngle: Float): Float =
     (currentAngle - previousAngle + FULL_ROTATION_DEGREES + HALF_ROTATION_DEGREES) %

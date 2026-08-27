@@ -85,5 +85,5 @@ class UserRepositoryImpl @Inject constructor(
             )
         } catch (e: Exception) {
             Response.Failure(e)
-    }
+        }
 }
