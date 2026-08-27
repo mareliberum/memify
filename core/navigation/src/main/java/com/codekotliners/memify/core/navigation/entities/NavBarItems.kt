@@ -9,7 +9,7 @@ object NavBarItems {
                 title = "Home",
                 iconNotPressed = R.drawable.outline_home_24,
                 iconPressed = R.drawable.outline_home_24,
-                route = "Home",
+                route = NavRoutes.Home.route,
             ),
             BarItem(
                 title = "Create",
@@ -21,7 +21,8 @@ object NavBarItems {
                 title = "Profile",
                 iconNotPressed = R.drawable.baseline_person_outline_24,
                 iconPressed = R.drawable.baseline_person_outline_24,
-                route = "Profile",
+                route = NavRoutes.Profile.route,
+                activeRoutes = setOf(NavRoutes.Profile.route, NavRoutes.Settings.route),
             ),
         )
 }

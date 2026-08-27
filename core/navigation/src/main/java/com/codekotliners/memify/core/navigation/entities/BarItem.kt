@@ -5,4 +5,5 @@ data class BarItem(
     var iconNotPressed: Int,
     val iconPressed: Int,
     val route: String,
+    val activeRoutes: Set<String> = setOf(route),
 )

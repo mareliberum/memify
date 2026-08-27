@@ -31,10 +31,13 @@ fun BottomNavigationBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
         val backStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = backStackEntry?.destination?.route
+        val currentRoute = backStackEntry?.destination?.route?.substringBefore("?")
 
         NavBarItems.BarItems.forEach { navItem ->
-            val selected = currentRoute == navItem.route
+            val selected =
+                navItem.activeRoutes.any { route ->
+                    currentRoute == route.substringBefore("?")
+                }
             NavigationBarItem(
                 modifier = Modifier.weight(1f),
                 selected = selected,
