@@ -23,6 +23,8 @@ import com.codekotliners.memify.features.create.domain.ColoredLine
 import com.codekotliners.memify.features.create.domain.TextElement
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Stable
 @HiltViewModel
@@ -277,9 +279,10 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
         if (index < 0) return
         val existing = canvasElements[index] as? TextElement ?: return
         val newSize = (existing.size * zoom).coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE)
+        val positionDeltaInCanvas = rotateOffset(positionDelta, existing.rotationDegrees)
         canvasElements[index] =
             existing.copy(
-                position = existing.position + positionDelta,
+                position = existing.position + positionDeltaInCanvas,
                 size = newSize,
                 rotationDegrees = normalizeRotation(existing.rotationDegrees + rotationDelta),
             )
@@ -370,5 +373,15 @@ open class CanvasViewModel @Inject constructor() : ViewModel() {
 
         private fun normalizeRotation(rotationDegrees: Float): Float =
             ((rotationDegrees % FULL_ROTATION_DEGREES) + FULL_ROTATION_DEGREES) % FULL_ROTATION_DEGREES
+
+        private fun rotateOffset(offset: Offset, rotationDegrees: Float): Offset {
+            val radians = Math.toRadians(rotationDegrees.toDouble())
+            val cosine = cos(radians).toFloat()
+            val sine = sin(radians).toFloat()
+            return Offset(
+                x = offset.x * cosine - offset.y * sine,
+                y = offset.x * sine + offset.y * cosine,
+            )
+        }
     }
 }
