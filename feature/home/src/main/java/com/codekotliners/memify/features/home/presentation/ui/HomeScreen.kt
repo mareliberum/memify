@@ -101,7 +101,10 @@ fun HomeScreen(
                     is PostsFeedTabState.Loading -> {}
 
                     is PostsFeedTabState.Error ->
-                        ErrorScreen(currentState.type)
+                        ErrorScreen(
+                            errorType = currentState.type,
+                            onRetry = viewModel::refresh,
+                        )
 
                     is PostsFeedTabState.Content ->
                         PostsFeed(currentState.posts, navController) { post ->

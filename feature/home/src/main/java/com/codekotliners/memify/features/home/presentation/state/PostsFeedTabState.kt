@@ -29,9 +29,16 @@ sealed interface PostsFeedTabState {
 }
 
 enum class ErrorType(
+    @StringRes val titleResId: Int,
     @StringRes val userMessageResId: Int,
 ) {
-    NETWORK(R.string.network_errormessage),
-    UNKNOWN(R.string.unknown_error_message),
+    NETWORK(
+        titleResId = R.string.network_error_title,
+        userMessageResId = R.string.network_errormessage,
+    ),
+    UNKNOWN(
+        titleResId = R.string.unknown_error_title,
+        userMessageResId = R.string.unknown_error_message,
+    ),
     ;
 }
