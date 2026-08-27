@@ -9,6 +9,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:navigation"))
     implementation(project(":core:ui"))
     implementation(project(":feature:templates"))
     implementation(project(":feature:viewer"))

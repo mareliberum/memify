@@ -87,7 +87,7 @@ fun ImageViewerScreen(
                     val url = viewModel.onTakeTemplateClick()
                     if (url != null) {
                         navController.navigate(NavRoutes.Create.createRoute(url)) {
-                            popUpTo(NavRoutes.Home.route) { inclusive = true }
+                            popUpTo(NavRoutes.Home.route)
                             launchSingleTop = true
                         }
                     } else {

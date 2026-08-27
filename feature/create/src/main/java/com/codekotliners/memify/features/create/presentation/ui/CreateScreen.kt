@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.BottomSheetScaffoldState
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -41,11 +40,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -76,9 +73,11 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.codekotliners.memify.features.create.R
+import com.codekotliners.memify.core.navigation.entities.NavRoutes
+import com.codekotliners.memify.core.navigation.navigateToTopLevelDestination
 import com.codekotliners.memify.core.ui.components.AppScaffold
 import com.codekotliners.memify.core.ui.components.CenteredCircularProgressIndicator
+import com.codekotliners.memify.features.create.R
 import com.codekotliners.memify.features.create.presentation.ui.components.ActionsRow
 import com.codekotliners.memify.features.create.presentation.ui.components.CreateScreenTopBar
 import com.codekotliners.memify.features.create.presentation.ui.components.DrawingRow
@@ -94,6 +93,7 @@ import kotlinx.coroutines.launch
 
 private const val MIN_IMAGE_SCALE = 1f
 private const val MAX_IMAGE_SCALE = 4f
+private const val DEFAULT_IMAGE_URL = "https://i.ytimg.com/vi/E-EtUFH7Ezs/maxresdefault.jpg"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,40 +106,8 @@ fun CreateScreen(
 ) {
     val isPublishing by viewModelViewer.isPublishing.collectAsState()
 
-    var pendingExitAction by remember { mutableStateOf<(() -> Unit)?>(null) }
-
     BackHandler {
-        pendingExitAction = { navController.popBackStack() }
-    }
-
-    val currentPendingExitAction = pendingExitAction
-    if (currentPendingExitAction != null) {
-        AlertDialog(
-            onDismissRequest = { pendingExitAction = null },
-            title = { Text(stringResource(R.string.exit_confirmation_title)) },
-            text = { Text(stringResource(R.string.exit_confirmation_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingExitAction = null
-                        currentPendingExitAction()
-                    },
-                ) {
-                    Text(stringResource(R.string.exit_confirmation_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingExitAction = null }) {
-                    Text(stringResource(R.string.cancel_action))
-                }
-            },
-        )
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.clearCanvas()
-        }
+        navController.navigateToTopLevelDestination(NavRoutes.Home.route)
     }
 
     val galleryLauncher =
@@ -155,10 +123,8 @@ fun CreateScreen(
         viewModel.imagePickerLauncher.value = galleryLauncher
     }
     LaunchedEffect(imageUrl) {
-        if (imageUrl != null) {
-            viewModel.imageUrl = imageUrl
-        } else {
-            viewModel.imageUrl = "https://i.ytimg.com/vi/E-EtUFH7Ezs/maxresdefault.jpg"
+        if (imageUrl != null || viewModel.imageUrl == null) {
+            viewModel.imageUrl = imageUrl ?: DEFAULT_IMAGE_URL
         }
     }
 
@@ -172,10 +138,7 @@ fun CreateScreen(
         )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
-    AppScaffold(
-        navController = navController,
-        onNavigateAway = { navigate -> pendingExitAction = navigate },
-    ) { padding ->
+    AppScaffold(navController = navController) { padding ->
         Box(
             modifier =
                 Modifier

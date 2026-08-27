@@ -15,14 +15,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codekotliners.memify.core.navigation.entities.NavBarItems
 
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
-    onNavigateAway: (navigate: () -> Unit) -> Unit = { navigate -> navigate() },
 ) {
     NavigationBar(
         modifier =
@@ -41,18 +39,7 @@ fun BottomNavigationBar(
                 modifier = Modifier.weight(1f),
                 selected = selected,
                 onClick = {
-                    val navigate = {
-                        navController.navigate(navItem.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                    if (selected) {
-                        navigate()
-                    } else {
-                        onNavigateAway(navigate)
-                    }
+                    navController.navigateToTopLevelDestination(navItem.route)
                 },
                 icon = {
                     Icon(
