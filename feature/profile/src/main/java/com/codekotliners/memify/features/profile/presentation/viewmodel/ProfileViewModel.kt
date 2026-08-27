@@ -19,6 +19,7 @@ import com.vk.id.VKIDUser
 import com.vk.id.refreshuser.VKIDGetUserCallback
 import com.vk.id.refreshuser.VKIDGetUserFail
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,7 +55,14 @@ class ProfileViewModel @Inject constructor(
         if (tokenStore.isLoggedIn()) {
             _state.value = _state.value.copy(isLoggedIn = true)
             viewModelScope.launch {
-                _likedPosts.value = likesRepository.getLikedPosts()
+                _likedPosts.value =
+                    try {
+                        likesRepository.getLikedPosts()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
             }
         }
 
@@ -74,7 +82,14 @@ class ProfileViewModel @Inject constructor(
         if (isLoggedInActually) {
             _state.value = _state.value.copy(isLoggedIn = true)
             viewModelScope.launch {
-                _likedPosts.value = likesRepository.getLikedPosts()
+                _likedPosts.value =
+                    try {
+                        likesRepository.getLikedPosts()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
             }
         }
 

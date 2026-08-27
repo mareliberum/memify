@@ -13,6 +13,7 @@ import com.codekotliners.memify.features.home.presentation.state.MainFeedScreenS
 import com.codekotliners.memify.features.home.presentation.state.MainFeedTab
 import com.codekotliners.memify.features.home.presentation.state.PostsFeedTabState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -62,8 +63,14 @@ class HomeScreenViewModel @Inject constructor(
 
     fun likeClick(card: Post) {
         viewModelScope.launch {
-            likesRepository.likeTap(card.toPostDto())
-            updateLocalPost(card.id)
+            try {
+                likesRepository.likeTap(card.toPostDto())
+                updateLocalPost(card.id)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // сервер недоступен/нет сети — не крашимся, просто лайк не применится
+            }
         }
     }
 

@@ -12,6 +12,7 @@ import com.codekotliners.memify.features.templates.presentation.state.Tab
 import com.codekotliners.memify.features.templates.presentation.state.TabState
 import com.codekotliners.memify.features.templates.presentation.state.TemplatesPageState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,6 +24,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.IOException
 import javax.inject.Inject
+
+// Тот же текст, что и network_errormessage в strings.xml этого модуля — используем здесь напрямую,
+// т.к. у ViewModel нет Context для getString().
+private const val NETWORK_ERROR_MESSAGE = "Ошибка во время загрузки. Проверьте подключение к сети"
 
 @HiltViewModel
 class TemplatesFeedViewModel @Inject constructor(
@@ -54,6 +59,12 @@ class TemplatesFeedViewModel @Inject constructor(
                     repository.toggleLike(id)
                 } catch (e: UnauthorizedActionException) {
                     _toastMessage.value = e.message
+                    return@launch
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // сервер недоступен/нет сети — не крашимся, показываем тост вместо этого
+                    _toastMessage.value = NETWORK_ERROR_MESSAGE
                     return@launch
                 }
 
