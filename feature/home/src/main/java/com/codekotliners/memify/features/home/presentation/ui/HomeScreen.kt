@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.codekotliners.memify.core.navigation.AUTH_SUCCESS_EVENT
+import com.codekotliners.memify.core.navigation.HOME_REFRESH_EVENT
 import com.codekotliners.memify.core.navigation.entities.ImageType
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.theme.MemifyTheme
@@ -45,7 +46,9 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val loginResult = currentBackStackEntry?.savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
+    val savedStateHandle = currentBackStackEntry?.savedStateHandle
+    val loginResult = savedStateHandle?.get<Boolean>(AUTH_SUCCESS_EVENT)
+    val homeRefreshRequested = savedStateHandle?.get<Boolean>(HOME_REFRESH_EVENT)
     val snackbarHostState = remember { SnackbarHostState() }
     val messageText =
         when (state.message) {
@@ -54,9 +57,10 @@ fun HomeScreen(
             null -> null
         }
 
-    LaunchedEffect(loginResult) {
-        if (loginResult == true) {
-            currentBackStackEntry.savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
+    LaunchedEffect(loginResult, homeRefreshRequested) {
+        if (loginResult == true || homeRefreshRequested == true) {
+            savedStateHandle.remove<Boolean>(AUTH_SUCCESS_EVENT)
+            savedStateHandle.remove<Boolean>(HOME_REFRESH_EVENT)
             viewModel.onAction(HomeAction.Refresh)
         }
     }

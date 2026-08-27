@@ -73,6 +73,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.codekotliners.memify.core.navigation.HOME_REFRESH_EVENT
 import com.codekotliners.memify.core.navigation.entities.NavRoutes
 import com.codekotliners.memify.core.navigation.navigateToTopLevelDestination
 import com.codekotliners.memify.core.ui.components.AppScaffold
@@ -121,6 +122,13 @@ fun CreateScreen(
         }
     LaunchedEffect(Unit) {
         viewModel.imagePickerLauncher.value = galleryLauncher
+    }
+    LaunchedEffect(viewModelViewer) {
+        viewModelViewer.imagePublishedEvent.collect {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set(HOME_REFRESH_EVENT, true)
+        }
     }
     LaunchedEffect(imageUrl) {
         if (imageUrl != null || viewModel.imageUrl == null) {
