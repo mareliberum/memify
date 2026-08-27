@@ -26,6 +26,7 @@ import javax.inject.Inject
 import kotlin.math.cos
 import kotlin.math.sin
 
+@Suppress("detekt.TooManyFunctions")
 @Stable
 @HiltViewModel
 open class CanvasViewModel @Inject constructor() : ViewModel() {

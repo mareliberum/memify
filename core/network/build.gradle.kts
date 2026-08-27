@@ -13,7 +13,9 @@ dependencies {
     implementation(projects.core.common)
     implementation(projects.core.prefs)
 
-    api(libs.ktor.client.core) // HttpClient и io.ktor.client.request/*.http.* нужны модулям, которые зависят от core:network (core:user, feature:auth, feature:templates и т.д.), поэтому api, а не implementation
+    // HttpClient и io.ktor.client.request/*.http.* нужны модулям,
+    // которые зависят от core:network, поэтому здесь api, а не implementation.
+    api(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)

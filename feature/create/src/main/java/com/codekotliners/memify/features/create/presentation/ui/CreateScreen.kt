@@ -409,6 +409,7 @@ private fun InteractiveCanvas(
     }
 }
 
+@Suppress("detekt.LongMethod")
 @Composable
 private fun ImageBox(
     viewModel: CanvasViewModel,

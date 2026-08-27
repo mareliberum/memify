@@ -108,7 +108,7 @@ class TemplatesFeedViewModel @Inject constructor(
         loadDataForTab(tab, refresh = false)
     }
 
-    @Suppress("detekt.LongMethod")
+    @Suppress("detekt.LongMethod", "detekt.CyclomaticComplexMethod")
     private fun loadDataForTab(
         tab: Tab,
         refresh: Boolean,
