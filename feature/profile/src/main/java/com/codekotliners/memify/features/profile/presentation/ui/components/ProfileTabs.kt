@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.codekotliners.memify.features.profile.R
 import com.codekotliners.memify.features.profile.presentation.model.ProfileTab
@@ -58,15 +57,13 @@ internal fun ProfileTabs(
         },
     ) {
         tabs.forEach { (tab, title) ->
-            val isSelected = selectedTab == tab
             Tab(
-                selected = isSelected,
+                selected = selectedTab == tab,
                 onClick = { onTabSelected(tab) },
                 text = {
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                     )
                 },
             )
